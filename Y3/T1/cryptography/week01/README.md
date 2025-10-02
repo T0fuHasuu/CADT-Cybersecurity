@@ -1,9 +1,11 @@
 # Cryptography : Week 1
 
+## Theory
+
 ### Terminalogy ( **Wordlist** ) 
 - 
 
----
+
 ### Encryption In History
 - Heiroglyphic Alphabet
 - A Scytale
@@ -14,3 +16,8 @@
 > Enigma ( GERMANY )
 > Purple ( JAPAN )
 - ភាសា + ស
+
+---
+
+## Lab
+
