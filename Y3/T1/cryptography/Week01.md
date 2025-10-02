@@ -1,8 +1,9 @@
 # Cryptography : Week 1
 
-## Terminalogy ( **Important** ) 
+### Terminalogy ( **Wordlist** ) 
 - 
 
+---
 ### Encryption In History
 - Heiroglyphic Alphabet
 - A Scytale
