@@ -1,16 +1,5 @@
-# Instruction
-
-go version
-go mod init <project/package>
-go run <file.go>
-go build <file.go>
-go get <add package>
-go doc <package information and details>
-go fmt <format code>
-
-### Lib for Hacking-Related
-
-``
+# Output 
+```bash
 T1/cryptography/week03 ➜ go run main.go 
 start: 10
 += : 15
@@ -36,4 +25,7 @@ Base64 : SGVsbG93b3JsZA==
 
 Encrypted (raw): tHISiSdAYUTHtHY
 Decrypted       : This Is Dayuth Thy
-``
+```
+
+
+https://github.com/T0fuHasuu/CADT-CYBER-COURSE/blob/main/Y3/T1/cryptography/week03/main.go
