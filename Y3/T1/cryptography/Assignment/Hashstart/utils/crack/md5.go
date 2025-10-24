@@ -8,9 +8,6 @@ import (
 	"strings"
 )
 
-// CrackMD5 opens wordlistPath, computes MD5 for each line (no newline),
-// compares to target (case-insensitive hex). Returns the matching plain
-// string or "" if not found.
 func CrackMD5(target, wordlistPath string) (string, error) {
 	target = strings.ToLower(strings.TrimSpace(target))
 

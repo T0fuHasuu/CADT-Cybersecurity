@@ -7,12 +7,8 @@ import (
 	"crypto/sha3"
 	"crypto/sha512"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"log"
-	"regexp"
-	"strconv"
-
 	"example.com/utils/crack/utils/crack"
 )
 
@@ -54,86 +50,52 @@ func proofMe(a, b string) {
 	}
 }
 
-
-func ExtractFlagFromPattern(pattern string) (string, error) {
-	hexRe := regexp.MustCompile(`\\x([0-9A-Fa-f]{2})`)
-	matches := hexRe.FindAllStringSubmatch(pattern, -1)
-	if len(matches) == 0 {
-		return "", errors.New("no \\x.. bytes found")
-	}
-	var b []byte
-	for _, m := range matches {
-		v, err := strconv.ParseUint(m[1], 16, 8)
-		if err != nil {
-			return "", err
-		}
-		b = append(b, byte(v))
-	}
-	part := string(b)
-	return "cryptoCTF{" + part + part + "}", nil
-}
-
 func main() {
 	// Task 0
-	// var a, b string
-	// fmt.Print("Please input value 1 : ")
-	// fmt.Scanln(&a)
-	// fmt.Print("Please input value 2 : ")
-	// fmt.Scanln(&b)
-	// proofMe(a, b)
+	var a, b string
+	fmt.Print("Please input value 1 : ")
+	fmt.Scanln(&a)
+	fmt.Print("Please input value 2 : ")
+	fmt.Scanln(&b)
+	proofMe(a, b)
+
+	// Wordlist
+	wordlist := "nord_vpn.txt"
 	
 	// Task 1
-	// target := "6a85dfd77d9cb35770c9dc6728d73d3f"
-	// wordlist := "nord_vpn.txt"
-
-	// found, err := crack.CrackMD5(target, wordlist)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// if found != "" {
-	// 	fmt.Println("FOUND:", found)
-	// } else {
-	// 	fmt.Println("Not found in wordlist")
-	// }
+	target1 := "6a85dfd77d9cb35770c9dc6728d73d3f"
+	fmt.Print("Enter target MD5 (press Enter to keep default): ")
+	var input string
+	if _, err := fmt.Scanln(&input); err == nil && input != "" {target1 = input}
+	found, err := crack.CrackMD5(target1, wordlist)
+	if err != nil { log.Fatal(err) }
+	if found != "" { fmt.Println("FOUND : ", found) } else { fmt.Println("Not found in wordlist") }
 
 	// Task 2
-	// target := "aa1c7d931cf140bb35a5a16adeb83a551649c3b9"
-	// wordlist := "nord_vpn.txt"
-
-	// found, err := crack.CrackSHA1(target, wordlist)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// if found != "" {
-	// 	fmt.Println("FOUND:", found)
-	// } else {
-	// 	fmt.Println("Not found in wordlist")
-	// }
-
-	
+	target2 := "aa1c7d931cf140bb35a5a16adeb83a551649c3b9"
+	fmt.Print("Enter target SHA1 (press Enter to keep default): ")
+	if _, err := fmt.Scanln(&input); err == nil && input != "" {target2 = input}
+	found, err = crack.CrackSHA1(target2, wordlist)
+	if err != nil { log.Fatal(err) }
+	if found != "" { fmt.Println("FOUND : ", found) } else { fmt.Println("Not found in wordlist") }
 
 	// Task 3
-	// target := "485f5c36c6f8474f53a3b0e361369ee3e32ee0de2f368b87b847dd23cb284b316bb0f026ada27df76c31ae8fa8696708d14b4d8fa352dbd8a31991b90ca5dd38"
-	// wordlist := "nord_vpn.txt"
+	target3 := "485f5c36c6f8474f53a3b0e361369ee3e32ee0de2f368b87b847dd23cb284b316bb0f026ada27df76c31ae8fa8696708d14b4d8fa352dbd8a31991b90ca5dd38"
+	fmt.Print("Enter target SHA512 (press Enter to keep default): ")
+	if _, err := fmt.Scanln(&input); err == nil && input != "" {target3 = input}
+	found, err = crack.CrackSHA512(target3, wordlist)
+	if err != nil { log.Fatal(err) }
+	if found != "" { fmt.Println("FOUND : ", found) } else { fmt.Println("Not found in wordlist") }
 
-	// found, err := crack.CrackSHA512(target, wordlist)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// if found != "" {
-	// 	fmt.Println("FOUND:", found)
-	// } else {
-	// 	fmt.Println("Not found in wordlist")
-	// }
+	// Task 4 
+	test := "meowmeow"
+	sum := md5.Sum([]byte(test))
+	digest := hex.EncodeToString(sum[:])
+	target4 := "b6ccb4ece5454dcae51778b3e239ebc2"
 
-
-
-	// Task 4
-	// pattern := `^cryptoCTF\{(?:\x6d\x65\x6f\x77){2}\}$`
-	// flag, err := ExtractFlagFromPattern(pattern)
-	// if err != nil {
-	// 	fmt.Println("error:", err)
-	// 	return
-	// }
-	// fmt.Println(flag)
+	if digest == target4 {
+		fmt.Printf("Matched!! FLAG: cryptoCTF{%s}\n", test)
+	} else {
+		fmt.Printf("MD5(%q) = %s (target %s) - not a flag\n", test, digest, target4)
+	}
 }
