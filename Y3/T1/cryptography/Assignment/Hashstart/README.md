@@ -1,11 +1,19 @@
-# **HashStart — ( Week 3 )**
+# **HashStart — ( Week 3 ) — DAYUTH THY**
 
 ## Repo layout
 
 ```
 .
 ├─ main.go
+├─ go.mod
+├─ README.md
+├─ results.txt
 ├─ nord_vpn.txt
+└─ imgs/
+   └─ 1.png
+   └─ 2.png
+   └─ 3.png
+   └─ 4.png
 └─ utils/
    └─ crack/
       ├─ md5.go
@@ -28,7 +36,7 @@ curl -L -o nord_vpn.txt \
   https://raw.githubusercontent.com/kkrypt0nn/wordlists/main/wordlists/passwords/nord_vpn.txt
 ```
 
-## Results
+## **>> [Results](https://github.com/T0fuHasuu/CADT-Cybersecurity/blob/main/Y3/T1/cryptography/Assignment/Hashstart/results.txt) <<**
 
 ```bash
 # Task0 Checksum
@@ -54,7 +62,10 @@ FOUND :  Gutter11
 
 ## Task 4
 
-
+![imG1](./imgs/1.png)
+![imG2](./imgs/2.png)
+![imG3](./imgs/3.png)
+![imG4](./imgs/4.png)
 
 ```go
 // Check and Compare
