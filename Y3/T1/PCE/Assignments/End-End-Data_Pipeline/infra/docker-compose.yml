@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    networks:
+      - pipeline_net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.1
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - pipeline_net
+
+  nifi:
+    image: apache/nifi:2.0.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../nifi/conf:/opt/nifi/nifi-current/conf
+      - ../nifi/state:/opt/nifi/nifi-current/state
+    networks:
+      - pipeline_net
+
+  hadoop-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    environment:
+      CLUSTER_NAME: "local"
+    volumes:
+      - hdfs_data:/hadoop/dfs/name
+    ports:
+      - "50070:50070"
+      - "9000:9000"
+    networks:
+      - pipeline_net
+
+  hadoop-datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    depends_on:
+      - hadoop-namenode
+    networks:
+      - pipeline_net
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: metadata
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - pipeline_net
+
+  service-a:
+    build:
+      context: ../services/service-a
+    volumes:
+      - ../services/service-a/logs:/app/logs
+    ports:
+      - "5000:5000"
+    networks:
+      - pipeline_net
+
+volumes:
+  hdfs_data:
+  pgdata:
+
+networks:
+  pipeline_net:
+    driver: bridge
