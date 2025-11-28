@@ -1,4 +1,8 @@
-# **Project Title: ESP32-Based Encrypted Password Vault with Firebase Storage**
+# **ESP32-Based Encrypted Password Vault with Firebase Storage**
+
+## **Instruction**
+
+![instruction](/IMG/self-project-instruction.jpg)
 
 ## **Project Overview**
 
@@ -9,17 +13,13 @@ All sensitive data stored in Firebase is **cryptographically protected**, and no
 
 This project demonstrates applied skills in secure system design, embedded cryptography, authentication, and integration with cloud services.
 
----
-
 # **Objectives**
 
 1. Provide a secure method to store and retrieve passwords remotely without exposing plaintext credentials.
-2. Use the ESP32 as the main trusted device for performing all crypto operations.
+2. Use ESP32 as a trusted cryptographic core for caculations.
 3. Implement AES-256-GCM encryption with IV + Tag + Ciphertext separation.
 4. Protect decryption with an additional SHA-256–based authentication step.
 5. Integrate embedded hardware, Wi-Fi, Firebase, and cryptographic libraries into a functioning security tool.
-
----
 
 # **System Architecture (High-Level)**
 
@@ -53,7 +53,28 @@ The user interacts via:
 * Name-based password lookup
 * Final authentication (SHA-256 check)
 
----
+# **Directory Summary**
+
+```
+Self-Project/
+│
+├── src/
+│   ├── main.ino       
+│
+├── data/
+│   ├── sample_encrypted.json
+│   ├── sample_key.json
+│
+├── docs/
+│   ├── report.pdf
+│
+├── IMG/
+│   ├── self-project-instruction.jpg   
+│
+├── README.md
+│
+└── .gitignore
+```
 
 # **Complete Workflow**
 
@@ -69,8 +90,6 @@ If the user enters the wrong password **3 times**, the system:
 * Locks itself
 * Enforces a 60-second timeout
 
----
-
 ## **2. Main Menu**
 
 After successful authentication, the ESP32 displays:
@@ -80,8 +99,6 @@ After successful authentication, the ESP32 displays:
 2 — Create Password  
 3 — Quit
 ```
-
----
 
 ## **3. Creating a Password (Encryption Path)**
 
@@ -105,8 +122,6 @@ When the user selects **Create Password**:
 
 **At no point is plaintext uploaded to Firebase.**
 
----
-
 ## **4. Retrieving a Password (Decryption Path)**
 
 When the user selects **Get Password**:
@@ -118,17 +133,13 @@ When the user selects **Get Password**:
    * AES key from `keys/name`
 3. Before decryption, ESP32 asks for:
 
-   * SHA-256 authentication: user must enter the hash of a secret string (e.g., “YUTH”)
+   * SHA-256 authentication: user must enter the hash of a secret string
 4. ESP32 locally compares:
 
    * `hash(input)` vs `prestored_hash`
 5. If correct → decrypt
 6. ESP32 prints the plaintext password
 7. If incorrect → denies access
-
-This double-layer approach prevents misuse even if Firebase is compromised.
-
----
 
 ## **5. Quit**
 
@@ -164,10 +175,3 @@ Terminates the session, closes the menu, and resets the device state.
 * ESP32 performs all crypto operations
 * Firebase holds only encrypted artifacts
 
-### **6. Offline-Capable**
-
-The device can:
-
-* Auto-connect to static hotspot
-* Operate without additional tools
-* Work through PuTTY instead of Arduino IDE
