@@ -2,7 +2,7 @@
 
 ## **Instruction**
 
-![instruction](/IMG/self-project-instruction.jpg)
+![instruction](./IMG/self-project-instruction.jpg)
 
 ## **Project Overview**
 
