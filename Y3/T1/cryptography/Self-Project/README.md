@@ -59,17 +59,17 @@ The user interacts via:
 Self-Project/
 │
 ├── src/
-│   ├── main.ino       
+│   └── main.ino       
 │
 ├── data/
 │   ├── sample_encrypted.json
-│   ├── sample_key.json
+│   └── sample_key.json
 │
 ├── docs/
-│   ├── report.pdf
+│   └── report.pdf
 │
 ├── IMG/
-│   ├── self-project-instruction.jpg   
+│   └── self-project-instruction.jpg   
 │
 ├── README.md
 │
