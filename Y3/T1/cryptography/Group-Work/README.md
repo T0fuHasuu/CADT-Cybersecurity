@@ -258,6 +258,8 @@ public class ShortFixed {
 }
 ```
 
+**Code Explaination**
+
 - Hash Function To Protect Password
 
 ```java
