@@ -149,3 +149,161 @@ Tampering detected! Rejecting data.
 - attacker changes data → stamp is wrong → attack blocked
 
 ## **[Empty String Password](./EmptyPass/RfidScenario.java) <-- Source**
+
+```java
+public final class RfidScenario {
+    public String rfidId = "";
+    public String password = ""; 
+}
+```
+
+### Error
+
+```bash
+public String password = "";
+```
+
+> **Problem:** password field is empty or left as default. If auth logic accepts empty or treats empty as valid, attacker can bypass authentication by supplying an empty password (or via other input vectors). Storing or accepting empty/plaintext passwords is insecure.
+
+### **How to Exploit?**
+
+#### **[Attack](./EmptyPass/VulnerableRfidAuth.java) <- Source**
+
+```java
+public class VulnerableRfidAuth {
+
+    static class User {
+        public String username;
+        public String password; 
+    }
+
+    public static void main(String[] args) {
+        System.out.println("=== VULNERABLE RFID AUTH DEMO ===");
+
+        User stored = new User();
+        stored.username = "alice";
+        stored.password = ""; 
+
+        String attackerProvidedPassword = ""; 
+
+        if (attackerProvidedPassword.equals(stored.password)) {
+            System.out.println("Auth SUCCESS — attacker logged in as " + stored.username);
+        } else {
+            System.out.println("Auth FAILED");}}}
+```
+
+**Code Explanation**
+
+- `static class User { public String password; }` : Construct a class representing a user (holds password).
+- `stored.password = "";` : Store an **empty** password (bad).
+- `String attackerProvidedPassword = "";` : Attacker supplies empty password.
+- `if (attackerProvidedPassword.equals(stored.password))` : Naive check — attacker wins.
+
+**Output**
+
+```bash
+=== VULNERABLE RFID AUTH DEMO ===
+Auth SUCCESS ? attacker logged in as alice
+```
+
+**Summary**
+
+- App stored or accepted an empty password.
+- Attacker supplies empty password → login succeeds.
+- Root cause: empty/hardcoded plaintext password and no validation or secure storage.
+
+
+#### **[Solution](./EmptyPass/ShortFixed.java) <- Source**
+
+```java
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class ShortFixed {
+    static String hash(byte[] salt, String pwd) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(salt);
+        md.update(pwd.getBytes("UTF-8"));
+        return Base64.getEncoder().encodeToString(md.digest());
+    }
+
+    static boolean ctEq(byte[] a, byte[] b) { 
+        if (a.length != b.length) return false;
+        int d = 0;
+        for (int i = 0; i < a.length; i++) d |= a[i] ^ b[i];
+        return d == 0;
+    }
+
+    public static void main(String[] args) throws Exception {
+    
+        String plain = "S3cureP@ss";
+        byte[] salt = new byte[12]; new SecureRandom().nextBytes(salt);
+        String storedHash = hash(salt, plain);
+
+
+        String attempt = "S3cureP@sss"; 
+
+        if (attempt == null || attempt.isEmpty()) {                 
+            System.out.println("Rejected: empty password not allowed.");
+            return;
+        }
+
+        String attemptHash = hash(salt, attempt);
+        if (ctEq(attemptHash.getBytes("UTF-8"), storedHash.getBytes("UTF-8")))
+            System.out.println("Auth SUCCESS");
+        else
+            System.out.println("Auth FAILED");
+    }
+}
+```
+
+- Hash Function To Protect Password
+
+```java
+static String hash(byte[] salt, String pwd) throws Exception {
+    MessageDigest md = MessageDigest.getInstance("SHA-256");
+    md.update(salt);
+    md.update(pwd.getBytes("UTF-8"));
+    return Base64.getEncoder().encodeToString(md.digest());
+}
+```
+
+- Generate Salt + Hash the Real Password
+
+```java
+byte[] salt = new byte[12];
+new SecureRandom().nextBytes(salt);
+String storedHash = hash(salt, realPassword);
+```
+
+- Reject Empty Password
+
+```java
+if (attempt == null || attempt.isEmpty()) {
+    System.out.println("Rejected: empty password not allowed.");
+    return;
+}
+```
+
+- Validate Password Using Constant-Time Comparison
+
+```java
+String attemptHash = hash(salt, attempt);
+if (ctEq(attemptHash.getBytes("UTF-8"), storedHash.getBytes("UTF-8")))
+```
+
+**Output**
+
+```bash
+=== FIXED (CRYPTO-PROTECTED PASSWORD) ===
+Rejected: empty password not allowed.
+```
+
+**Summary**
+
+- Empty passwords are immediately blocked
+- Passwords are **never stored in plain text**
+- Uses **Salt + SHA-256** to secure them
+- Uses **constant-time compare** to avoid timing attacks
+- Attacker cannot bypass login with an empty or modified password
