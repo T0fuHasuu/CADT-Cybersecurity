@@ -24,7 +24,7 @@ public class ShortFixed {
         String storedHash = hash(salt, plain);
 
 
-        String attempt = "S3cureP@sss"; 
+        String attempt = "S3cureP@ss"; 
 
         if (attempt == null || attempt.isEmpty()) {                 
             System.out.println("Rejected: empty password not allowed.");

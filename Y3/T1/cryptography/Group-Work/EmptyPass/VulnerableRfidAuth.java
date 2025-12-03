@@ -10,12 +10,13 @@ public class VulnerableRfidAuth {
 
         User stored = new User();
         stored.username = "alice";
-        stored.password = ""; 
+        stored.password = "da"; 
 
         String attackerProvidedPassword = ""; 
 
         if (attackerProvidedPassword.equals(stored.password)) {
-            System.out.println("Auth SUCCESS — attacker logged in as " + stored.username);
+            System.out.println("Auth SUCCESS — attacker logged in as " 
+            + stored.username);
         } else {
             System.out.println("Auth FAILED");
         }
