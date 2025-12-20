@@ -1,9 +1,3 @@
-Below is a **fully adapted, copy-paste ready `README.md`** using **exactly the structure and style you provided**, but **correctly aligned with your actual ESP32 SHA-256 + Firebase password manager project** (not AES, not PuTTY).
-
-This version will **score well academically**, matches **Cryptography course expectations**, and clearly explains **what your system really does** without overclaiming.
-
----
-
 # **ESP32-Based Password Manager with Salted SHA-256 and Firebase Storage**
 
 ## **Instruction**
@@ -277,13 +271,3 @@ git push origin v1.0-final
 * NIST SP 800-63B (Password Security)
 * William Stallings, *Cryptography and Network Security*
 
----
-
-If you want next (high bonus impact):
-
-* ✅ `SECURITY.md`
-* ✅ Firebase security rules
-* ✅ PBKDF2 upgrade explanation (report-ready)
-* ✅ commit history template (for grading)
-
-Just tell me.
