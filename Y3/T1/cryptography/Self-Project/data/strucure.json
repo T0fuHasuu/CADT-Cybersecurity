@@ -1,0 +1,8 @@
+{
+  "passwords": {
+    "<entry_name>": {
+      "salt": "<hex_salt>",
+      "hash": "<sha256_hash>"
+    }
+  }
+}

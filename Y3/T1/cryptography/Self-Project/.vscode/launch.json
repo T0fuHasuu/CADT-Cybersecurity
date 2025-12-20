@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/CADT-Cybersecurity/Y3/T1/Cryptography/Self-Project/src/context",
-      "program": "d:/CADT-Cybersecurity/Y3/T1/Cryptography/Self-Project/src/context/build/Debug/outDebug",
+      "cwd": "d:/CADT-Cybersecurity/Y3/T1/Cryptography/Self-Project",
+      "program": "d:/CADT-Cybersecurity/Y3/T1/Cryptography/Self-Project/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

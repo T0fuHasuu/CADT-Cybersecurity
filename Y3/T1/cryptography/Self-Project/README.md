@@ -67,15 +67,19 @@ No client-side cryptography is performed.
 # **Directory Summary**
 
 ```
-esp32-password-manager/
+SELF-PROJECT/
 │
-├── sketch.ino                 # Main ESP32 application
+├── main.ino                 
 │
-├── report/
-│   └── final_report.pdf       # Academic report
+├── docs/
+│   └── THY_DAYUTH_ESP32_PASSWORD_MANAGER.pdf   
 │
 ├── IMG/
 │   └── self-project-instruction.jpg
+│   
+├── data/
+│   └── sample.json
+│   └── structure.json
 │
 ├── README.md
 │
