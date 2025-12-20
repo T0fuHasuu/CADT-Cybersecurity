@@ -202,8 +202,6 @@ When the user selects **Verify Password**:
 
 # **Installation & Setup**
 
-## **Requirements**
-
 * ESP32 development board
 * Arduino IDE or PlatformIO
 * Firebase Realtime Database project
@@ -220,10 +218,6 @@ Edit the following values in the sketch before uploading:
 #define DB_URL    "https://your-project-id.firebaseio.com/"
 ```
 
-> ⚠️ **Do NOT commit real credentials to a public repository**
-
----
-
 # **Running the Program**
 
 1. Upload the sketch to the ESP32
@@ -234,38 +228,6 @@ Edit the following values in the sketch before uploading:
 ```
 http://<ESP32-IP>/
 ```
-
----
-
-# **Version Control (GitHub Requirement)**
-
-* Public GitHub repository maintained
-* Commit updates at least once every 2 weeks
-* Commit messages describe system changes
-
-### **Final Version Tag**
-
-```bash
-git tag v1.0-final
-git push origin v1.0-final
-```
-
----
-
-# **Limitations & Academic Disclosure**
-
-* Single SHA-256 is not ideal for production password storage
-* HTTP is used instead of HTTPS
-* Hard-coded authorization hash is for demonstration only
-
-**Recommended future improvements:**
-
-* PBKDF2 / Argon2 password hashing
-* Firebase Authentication
-* HTTPS gateway or reverse proxy
-* Rate limiting and lockout policies
-
----
 
 # **References**
 
