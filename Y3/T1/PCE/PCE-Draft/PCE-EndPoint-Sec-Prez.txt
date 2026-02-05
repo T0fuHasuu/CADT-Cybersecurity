@@ -1,0 +1,96 @@
+1. Executive summary 
+
+[] Outcome 
+- zero trust access : use VDI so that data won't be physically in the vendor or contractor device
+- Total visibility  : Have real-time monitoring all the device include remotely and on premises
+- Financially       : Be flexible with the expense by removing what is not necessary 
+
+2. Environment & Asset 
+
+[] Endpoint Inventory and Classification 
+
+- Laptop for the employees must be filter so that it can reduce risk to phishing and malicious sites
+- Laptop for IT and Engineering must be strictly access into such as MFA and AppLocker
+- Mobile Phone for employee are a high risk due to copy the company asset and sell so put in container
+- Laptop for contractors are critical cause it's a unknown device which can cause problem
+- server is high risk and have to monitor overtime 
+
+[] Application 
+
+Something that can lead to Privilege escalation are considered high risk both revenues impact 
+
+3. Key Security Risk & Threats
+
+We always take CIA triad as a check list
+
+- risk 1 (ransomware) : outdated laptop or small mistake can lead to data being compromised 
+- risk 2 (data exfiltration) : employee copy and access to sensitive information 
+- risk 3 (lateral movement) : 1 infected device can lead to whole organization shut down
+- risk 4 (physical theft) : a stolen laptop can be a bad news if it doesn't have FDE
+
+[] Unmanaged device will be the biggest risk in the company
+[] Patch gap can be watch closely by the attacker and will be damaged if not fix quickly
+
+4. Tool open source stack
+
+- WAZUH : detect real time and respond
+- Tactical RMM : reports and update gap to help mitigate risks
+- ClamAV & MCS-Defender : To provide layer malware protection 
+- Using the Default Deny
+- Whitelisting : AppLocker Policy so that only a specific role can access to that to info 
+- MDM : set compliance from the company 
+
+5. Operation and Plans
+
+We do step by step instead of implementing all by one
+
+[] Financial Feasibility 
+
+- We focus on cloud more than the physical server itself for the contractors
+
+[] Critical Operational Workflows
+
+I: 
+- Contractor devices are not owned by the company
+- Device unknown
+- Use Guacamole as remote desktop gateway
+- Contractor log in
+- guacamole creates disposable container 
+- Data streaming rather than sending raw data 
+- Once end, session terminate
+
+II: 
+- Whenever an AV or Malware entered
+- enter route loopback so that it can stay isolate there by itself and won't affect anything else
+- And the push to SOC
+
+[] Rollout Plans
+
+A. Foundation & Visibility 
+
+- Set baseline activities
+- Deploy WAZUH agent to monitor only the log looking for suspicious activities 
+- VDI setup for the contractor 
+
+B. Core Hardening 
+
+- Implement Tactical RMM for auto patching whenever there's critical update
+- Firewall logic using group and authorization 
+- Enable FDE so when laptop accidentally got lost, it wont be able to read without TPM key 
+- AppLocker for other group outside of IT and Engineering
+
+C. The Edge and BYOD 
+
+- revoke all legacy VPN account and connect to the secured one through Web VDI Portal like anydesk
+- QR scan to have the mobile device in container
+- Map guide you how to get there, and ticket tell u what and where is that
+- Employee cant copy and paste data asset to others
+
+[] User and Change Management that help people understand and update to these settings
+
+6. Budget and Scalability 
+
+[] Unlimited license which buy only for extra
+[] Cloud agnostic: whether using AWS, Azure or google cloud and more, it remains functional without modification 
+[] Tactical RMM one to many to patch all in one 
+

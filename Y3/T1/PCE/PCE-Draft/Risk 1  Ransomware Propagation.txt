@@ -1,0 +1,23 @@
+Risk 1 : Ransomware Propagation 
+Solution : Deploy WAZUH Agent and Host-Based Firewalls to isolate device when infected immediately 
+
+Risk 2 : Data Exfiltration 
+Solution : Prevent and Disable Copy and Paste Function 
+
+Risk 3 : Lateral Movement 
+Solution : Using Host-Based Firewalls and WAZUH FIM to detect 
+
+Risk 4 : Physical Theft 
+Solution : Use FDE or have it unreadable without TPM key 
+
+Risk 5 : Shadow IT & Unsanctioned Applications
+Solution : Block Any Activity that is not from trusted signature
+
+Risk 6 : Privilege Escalation 
+Solution : Only those with high risk role get the right to access and if things went wrong, Block 
+
+Risk 7 : Man-in-the-Middle 
+Solution : Only usable when it a designed and secured network  
+
+Risk 8 : Zero Day Vulnerabilities 
+Solution : Auto Update when updates are available and crucial 

@@ -1,0 +1,35 @@
+Secure System Design Project for Telecom Company
+This project requires designing secure company systems for a telecom organisation based on the following environment and constraints.
+Company Profile and Scope
+• Industry: Telecom
+• Total Personnel: 550 individuals (500 employees, 50 contractors)
+• Applications: 30 applications in use
+• Vendor Relationships: 3 systems vendors
+• Infrastructure Mix: Hybrid (Some services are on-premise, and some services are in the cloud).
+• Scope per Group: One design per group.
+• Collaboration and Resources:
+o AI (Artificial Intelligence) tools are allowed.
+o Group discussion and collaboration are allowed.
+
+5. Endpoint Security
+Deploy endpoint detection and response (EDR) solutions, antivirus/anti-malware protection, mobile device management (MDM) for BYOD scenarios, patch
+management systems, application whitelisting, and host-based firewalls. Consider the diverse endpoint ecosystem across 550 users.
+
+Exercise Considerations:
+• Budget constraints and prioritisation
+• Integration challenges between cloud and on-premise systems
+• Scalability for future growth
+• User experience vs. security balance
+• Contractor temporary access workflows
+• Zero-trust architecture principles
+• Regulatory compliance requirements specific to the industry
+
+Sorn Sotheara
+Thann Monyrosa
+Tun Monireaksa
+Vutthin Vatthanak 
+Thy Dayuth 
+Huon Sreynuth
+
+Course: Professionalism - Computing and Ethics 
+Instructed by: Doeuk Visal 

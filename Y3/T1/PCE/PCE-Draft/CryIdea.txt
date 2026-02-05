@@ -1,0 +1,23 @@
+I have an idea, let's end the research for now and here is my project concept and plan 
+
+I'll be using Esp32 as a flash board to encrypt and decrypt but passwords are stored in firebase although password which stored in firebase database are not the full at all, it is encrypted with AES-256 which consists of IV, Tag and Ciphertext. while the key store in another database which label the password name like category and such which match the file encrypted also. When decrypt it will pull the data from the database and then decrypt it with pair encrypted file and key but before displaying the key, the user must enter a sha256 hash password of a string like YUTH and the hash of that to get the password which decrypted.
+
+Here is the exact workflow of it 
+- I plugged in ESP32 which also connect to WIFI
+- I later then use terminal to connect to that ESP32 and the WIFI all working and connect automatically 
+- then I'll see first thing is to enter password to enter the encryption and decryption algorithm calculator 
+- 3 times wrong would terminate the process and timeout for 1 minute 
+- I enter then it will load menu which has 3 options Get Password, Create Password and quit
+- Create Password option would prompt me to enter that password which use to login to website and stuff and after that prompt to get the name which is what that password for and enter it will encrypt that password and use the name as id name which to call when type it out to call those to use. After encrypted it will leave with 2 file which 1 contains iv, tag and ciphertext and 1 more is the key. the first 1 store in the ciphertext database with label the name of the password. And the same goes for the key. After all of that done it will load back to the menu.
+- get password option will prompt user to type the name of password they want and then prompt to type the hash sha256 of the word YUTH but in code YUTH will be hash to sha256 to compare and if it the same then display the password and if not say error or invalid. 
+- quit would quite the process and terminate.
+- the WIFI would be a static WIFI for now so that whenever I open my phone hotspot it will automatically connect
+- then I'll see first thing is to enter password to enter the encryption and decryption algorithm calculator 
+- 3 times wrong would terminate the process and timeout for 1 minute 
+- I enter then it will load menu which has 3 options Get Password, Create Password ans quit
+- Create Password option would prompt me to enter that password which use to login to website and stuff and after that prompt to get the name which is what that password for and enter it will encrypt that password and use the name as id name which to call when type it out to call those to use. After encrypted it will leave with 2 file which 1 contains iv, tag and ciphertext and 1 more is the key. the first 1 store in the ciphertext database with label the name of the password. And the same goes for the key. After all of that done it will load back to the menu.
+- get password optin will prompt user to type the name of password they want and then prompt to type the hash sha256 of the word YUTH but in code YUTH will be hash to sha256 to compare and if it the same then display the password and if not say error or invalid. 
+- quit would quite the process and terminate.
+- the wifi would be a static wifi for now so that whenever I open my phone hotspot it will automatically connect
+
+

@@ -1,0 +1,20 @@
+>> go run main.go
+
+Please input value 1 : Hello
+Please input value 2 : Hi
+========Name + Hashing Program========
+Please input value 1 : Hello
+Please input value 2 : Hi
+
+Hash (MD5) : 8b1a9953c4611296a827abf8c47804d7 / c1a5298f939e87e8f962a5edfc206918 => No Match!
+Hash (SHA1) : f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0 / 94dd9e08c129c785f7f256e82fbe0a30e6d1ae40 => No Match!
+Hash (SHA256) : 185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969 / 3639efcd08abb273b1619e82e78c29a7df02c1051b1820e99fc395dcaa3326b8 => No Match!
+Hash (SHA512) : 3615f80c9d293ed7402687f94b22d58e529b8cc7916f8fac7fddf7fbd5af4cf777d3d795a7a00a16bf7e7f3fb9561ee9baae480da9fe7a18769e71886b03f315 / 45ca55ccaa72b98b86c697fdf73fd364d4815a586f76cd326f1785bb816ff7f1f88b46fb8448b19356ee788eb7d300b9392709a289428070b5810d9b5c2d440d => No Match!
+Hash (SHA3-256) : 8ca66ee6b2fe4bb928a8e3cd2f508de4119c0895f22e011117e22cf9b13de7ef / bef0a85a10723404d0402c9b7c2bc7ad27017b7d702cf1f831dce80f4410a0ef => No Match!
+Enter target MD5 (press Enter to keep default):
+FOUND :  Google101
+Enter target SHA1 (press Enter to keep default):
+FOUND :  Princess1
+Enter target SHA512 (press Enter to keep default):
+FOUND :  Gutter11
+Matched!! FLAG: cryptoCTF{meowmeow}

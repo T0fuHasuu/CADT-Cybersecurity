@@ -1,0 +1,104 @@
+PCE EXAMINATION 23rd 
+
+11. A. Data at rest is any data stored on media such as system hard drives, solid-state drives, and backup tapes. Encrypting data on servers is a method for protecting data at rest.
+
+12. C. Pseudonymization replaces data with artificial identifiers (pseudonyms). The key is that it allows for reversing the process to identify the original data if necessary, unlike anonymization which is irreversible.
+
+13. A. The data owner is the person responsible for classifying, labelling, and protecting data. The data custodian is delegated the day-to-day responsibility for storage and protection.
+
+14. C. The Bell-LaPadula model has two primary rules: the Simple Security Rule (no read up) and the Star Property Rule (*-property) (no write down). While A and B describe the rules, C
+
+C provides their official names.
+
+15. B. The Trusted Computing Base (TCB) is the combination of a system's hardware, software, and controls that work together to form a trusted base to enforce the security policy.
+
+16. A. A closed system is proprietary and is not interoperable with other systems. A closed source solution is one where the source code is hidden from the public. A program can be closed source but run on an open system.
+
+17. A. A type I hypervisor is a native or bare-metal hypervisor that is installed directly onto the hardware of the physical server. A type II hypervisor is an application that is installed onto a host OS.
+
+18. D. The 'Keep It Simple' (KISS) principle encourages avoiding overly complex solutions. Simpler solutions are easier to secure, troubleshoot, and verify.
+
+19. C. Zero trust is a security concept where nothing inside or outside the organization is automatically trusted. Each request for activity or access is authenticated, authorized, and encrypted before trust is established, and trust is continuously validated.
+
+20. B. A record retention policy dictates how long data should be kept. If the policy was to delete emails after one year, but tapes from three years ago still existed and contained them, the retention policy was ignored.
+
+21. B. Asymmetric cryptography is highly scalable because users can make their public key available to anyone without a pre-existing communication link. Symmetric cryptography requires a secure, out-of-band exchange of a shared key, which is not scalable.
+
+22. C. Hashing algorithms produce a fixed-size message digest from a variable-sized input file. By comparing the hash of the downloaded file with the hash provided by the source, a user can verify the file's integrity.
+
+23. D. Hypertext Transfer Protocol Secure (HTTPS) is the protocol used for secure web communications. It indicates that the communication is encrypted using Transport Layer Security (TLS) or its predecessor, SSL.
+
+24. A. A virtual private network (VPN) establishes a secure, encrypted communication tunnel over any untrusted network, such as the internet, to protect the confidentiality and integrity of the data transmitted.
+
+25. C. Stateful inspection firewalls evaluate the state or context of network traffic. By examining the relationship between current and previous packets of the same session, they are able to make more intelligent filtering decisions than other firewall types.
+
+26. D. WPA3 is the latest generation of Wi-Fi security, offering superior security features over its predecessors, including stronger encryption and protection against brute-force attacks. WPA2 is still widely used but is being replaced by WPA3.
+
+27. A. An Evil Twin attack involves an attacker setting up a fraudulent Wi-Fi access point that appears to be legitimate, with the goal of tricking users into connecting so their traffic can be monitored.
+
+28. B. The Internet Layer of the TCP/IP model is responsible for logical addressing (IP addresses), routing, and path determination.
+
+29, C. The Domain Name System (DNS) is a hierarchical system that translates human-friendly domain names (like www.example.com) into the numerical IP addresses (like 192.0.2.1) required for locating and identifying computer services and devices.
+
+30. C. Routers operate at Layer 3 and are used to separate broadcast domains. By doing so, they can segment a network, which Improves performance by reducing broadcast traffic and enhances security by isolating traffic between segments.
+
+31. C. The principle of least privilege states that users should be granted only the minimum access necessary to perform their job responsibilities. This is a foundational concept in security.
+
+32. B. Privilege escalation occurs when an attacker or user gains access to more rights, permissions, or privileges than they are authorized for. It is a common attack vector.
+
+33. C. SAML is an open standard for exchanging authentication and authorization data between parties, in particular, between an identity provider and a service provider. It is a cornerstone of web-based single sign-on (SSO) and federated identity management.
+
+34. C. Multi-Factor Authentication (MFA) requires two or more different types of authentication factors (something you know, something you have, something you are). A password (know) and a hardware token (have) constitute MFA.
+
+35. A. Onboarding is the process of integrating a new employee into an organization, which includes administrative tasks, policy review, and introductions to the company culture and workflow.
+
+36. C. Employee oversight is the ongoing process where managers regularly review job descriptions, tasks, privileges, and responsibilities of their staff to ensure alignment with business needs and security principles like least privilege.
+
+37. 8. A Nondisclosure Agreement (NDA) is a legal contract that establishes a confidential relationship. The signing party agrees that sensitive information they may obtain will not be made available to any others.
+
+38. C. Role-Based Access Control (RBAC) is a model where access rights are grouped by role, and users are assigned to roles. This simplifies access management in large organizations.
+
+39. 8. Mandatory vacations are a security control where another employee performs the duties of the vacationing employee. This peer review process makes it easier to detect abuse, fraud, or negligence.
+
+40. C. Terminal Access Controller Access Control System Plus (TACACS+) is a protocol that provides centralized authentication, authorization, and accounting (AAA) for remote access. Unlike RADIUS which only encrypts the password, TACACS+ encrypts the entire body of the packet.
+
+41. D. Using server-side validation is a secure coding technique because it prevents attackers from bypassing client-side controls. Using stored procedures and code signing are also secure techniques, but server-side validation is a fundamental practice. Immutable systems and third-party libraries (A,F) are architectural/sourcing choices, not coding techniques.
+
+42. C. The first stage of the seven-stage PASTA methodology is Stage 1: Definition of the Objectives (DO) for the Analysis of Risks. This sets the business context and objectives for the entire threat model. 43. B. A pretext is a false statement or story created to sound believable, used by a social engineer to manipulate a
+
+target into performing an action or disclosing information. 43. B. A pretext is a false statement or story created to sound believable, used bing an action or disclosing information.
+
+44. B. Whaling is a specific type of spear phishing attack that targets high-profile employees, such as senior executives (like a CEO) or other important individuals within an organization.
+
+45. A. A hot site is a fully configured alternate data center with all the necessary hardware, software, and network connectivity, allowing an organization to resume operations with minimal downtime.
+
+46. C. Business Continuity Planning (BCP) is the holistic management process that identifies potential threats to an organization and the impacts to business operations those threats, if realized, might cause. It includes organizing the
+
+47. A. Fagan inspections follow a rigid, formal process with defined entry and exit criteria. The correct sequence is Planning, Overview, Preparation, inspection, Rework, and Follow-up.
+
+48. B. Fuzzing (or fuzz testing) is an automated software testing technique that involves providing invalid, unexpected, or random data (fuzz) to the inputs of a computer program to find security loopholes and bugs.
+
+49. C. An essential part of risk management is identifying and examining threats, which involves creating an exhaustive list of all possible threat events that could impact the organization.
+
+50. C. A web application vulnerability scan uses automated tools to specifically test web applications for common security vulnerabilities that are part of the application logic itself, distinct from network-level vulnerabilities.
+
+51. B. A software escrow agreement places the source code of a software product in the hands of a trusted third party. The code is released to the licensee if the licensor (vendor) files for bankruptcy or fails to maintain the
+
+52. D. STRIDE is a mnemonic for Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. The unauthorized exposure of sensitive documents is a form of Information Disclosure.
+
+53. C. The DevOps model is a software development methodology that combines software development (Dev) with information technology operations (Ops) to shorten the systems development life cycle and provide continuous delivery.
+
+54. C. The Cloud Shared Responsibility Model defines the division of security obligations between a cloud service provider (CSP) and its customers. It clarifies who is responsible for securing different aspects of the cloud environment.
+
+55. B. Defense in depth uses multiple controls in a series (serial configuration). Terms like layered security and multilevel security are synonymous. Parallel configurations are wide but shallow and are not a useful concept for defense in depth.
+
+56. C. SQL Injection is an attack technique used to exploit vulnerabilities in the database layer of an application. The attacker provides malicious SQL statements through an input field to be executed by the back-end database.
+
+57. A. An Intrusion Detection System (IDS) monitors network or system activities for malicious activity or policy violations and reports them. Signature-based IDSs specifically look for patterns that match known attacks.
+
+58. B. Change management is the formal process for making changes to IT systems. It ensures that changes are introduced in a controlled and coordinated manner to minimize risk and negative impact on services.
+
+59. B. Supply Chain Risk Management (SCRM) is critical because modern systems are assembled from components from numerous third-party vendors. This creates a risk that counterfeit, malicious, or vulnerable components could be introduced into the final product.
+
+60. C. During the termination (offboarding) process, it is critical to immediately disable all of the former employee's access to physical facilities and logical systems to prevent potential sabotage or data theft.
+
