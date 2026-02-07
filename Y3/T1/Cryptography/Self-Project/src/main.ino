@@ -1,316 +1,511 @@
 #include <WiFi.h>
-#include <WebServer.h>
-#include <Firebase_ESP_Client.h>
-#include "mbedtls/sha256.h"
+#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
+#include <mbedtls/gcm.h>
+#include <mbedtls/base64.h>
+#include <mbedtls/sha256.h>
 #include <esp_system.h> // esp_fill_random
 
-// ---------- CONFIG ----------
-#define LED_PIN   25
-#define SSID      "T0fu"
-#define PASSWORD  "logic123"
-#define HOSTNAME  "abuga"
+// ====== CONFIG - EDIT BEFORE USE ======
+const char *WIFI_SSID = "SSID";
+const char *WIFI_PASS = "PASSWORD";
 
-#define API_KEY   "YOUR_FIREBASE_API_KEY"
-#define DB_URL    "https://your-project-id.firebaseio.com/"  // trailing slash required
+const char *FIREBASE_HOST = "your-project-id.firebaseio.com"; // no https://
+const char *FIREBASE_AUTH = "";                               // your DB secret or token (optional)
 
-const char* MASTER_PASSWORD_HASH = "39b57dae2ed0bc654c15f9d36a1bd4ac280d059340b29a0a4fc0d87768e3e21b";
+// ====== SETTINGS ======
+#define MASTER_SECRET "YUTH" // string whose SHA256 is used as login check
+#define MAX_SERIAL_READ 256
 
-// ---------- Firebase objects ----------
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig configFirebase;
-
-// ---------- Web server ----------
-WebServer server(80);
-
-// ---------- Utilities ----------
-String bytesToHex(const uint8_t *buf, size_t len) {
-  String s; s.reserve(len*2);
-  const char hex[] = "0123456789abcdef";
-  for (size_t i = 0; i < len; ++i) {
-    s += hex[(buf[i] >> 4) & 0xF];
-    s += hex[buf[i] & 0xF];
-  }
+// ====== HELPERS: Base64 ======
+String base64_encode_buf(const uint8_t *data, size_t len)
+{
+  size_t out_len = 4 * ((len + 2) / 3) + 1;
+  unsigned char *out = (unsigned char *)malloc(out_len);
+  if (!out)
+    return String();
+  size_t olen = 0;
+  int rc = mbedtls_base64_encode(out, out_len, &olen, data, len);
+  String s;
+  if (rc == 0)
+    s = String((char *)out, olen);
+  free(out);
   return s;
 }
 
-bool hexToBytes(const String &hex, uint8_t *out, size_t outLen) {
-  if (hex.length() != (int)outLen * 2) return false;
-  auto val = [](char c)->int {
-    if (c >= '0' && c <= '9') return c - '0';
-    if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
-    if (c >= 'A' && c <= 'F') return 10 + (c - 'A');
-    return -1;
-  };
-  for (size_t i = 0; i < outLen; ++i) {
-    int hi = val(hex[2*i]);
-    int lo = val(hex[2*i+1]);
-    if (hi < 0 || lo < 0) return false;
-    out[i] = (uint8_t)((hi << 4) | lo);
+bool base64_decode_to_buf(const String &in, uint8_t *out_buf, size_t &out_len)
+{
+  size_t in_len = in.length();
+  size_t needed = (in_len / 4) * 3 + 4;
+  unsigned char *tmp = (unsigned char *)malloc(needed);
+  if (!tmp)
+    return false;
+  int rc = mbedtls_base64_decode(tmp, needed, &out_len, (const unsigned char *)in.c_str(), in_len);
+  if (rc == 0)
+  {
+    memcpy(out_buf, tmp, out_len);
+    free(tmp);
+    return true;
   }
-  return true;
-}
-
-String sha256Hex(const String &input) {
-  unsigned char out[32];
-  mbedtls_sha256_context ctx;
-  mbedtls_sha256_init(&ctx);
-  mbedtls_sha256_starts_ret(&ctx, 0);
-  mbedtls_sha256_update_ret(&ctx, (const unsigned char*)input.c_str(), input.length());
-  mbedtls_sha256_finish_ret(&ctx, out);
-  mbedtls_sha256_free(&ctx);
-  String h = bytesToHex(out, 32);
-  memset(out, 0, sizeof(out));
-  return h;
-}
-
-String genSaltHex(size_t lenBytes = 16) {
-  uint8_t s[lenBytes];
-  esp_fill_random(s, lenBytes);
-  String hex = bytesToHex(s, lenBytes);
-  memset(s, 0, lenBytes);
-  return hex;
-}
-
-// Compute SHA256(saltBytes || password) -> hex
-bool hashWithSaltHex(const String &saltHex, const String &password, String &outHashHex) {
-  size_t saltLen = saltHex.length() / 2;
-  uint8_t *salt = (uint8_t*)malloc(saltLen);
-  if (!salt) return false;
-  if (!hexToBytes(saltHex, salt, saltLen)) { free(salt); return false; }
-  size_t pwdLen = password.length();
-  size_t bufLen = saltLen + pwdLen;
-  uint8_t *buf = (uint8_t*)malloc(bufLen);
-  if (!buf) { free(salt); return false; }
-  memcpy(buf, salt, saltLen);
-  memcpy(buf + saltLen, password.c_str(), pwdLen);
-
-  unsigned char out[32];
-  mbedtls_sha256_context ctx;
-  mbedtls_sha256_init(&ctx);
-  mbedtls_sha256_starts_ret(&ctx, 0);
-  mbedtls_sha256_update_ret(&ctx, buf, bufLen);
-  mbedtls_sha256_finish_ret(&ctx, out);
-  mbedtls_sha256_free(&ctx);
-
-  outHashHex = bytesToHex(out, 32);
-
-  memset(out, 0, sizeof(out));
-  memset(buf, 0, bufLen); free(buf);
-  memset(salt, 0, saltLen); free(salt);
-  return true;
-}
-
-// ---------- Firebase helpers ----------
-void firebaseInit() {
-  configFirebase.api_key = API_KEY;
-  configFirebase.database_url = DB_URL;
-  Firebase.begin(&configFirebase, &auth);
-  Firebase.reconnectWiFi(true);
-}
-
-bool storePasswordToFirebase(const String &name, const String &saltHex, const String &hashHex) {
-  String pBase = "/passwords/" + name;
-  String pSalt = pBase + "/salt";
-  String pHash = pBase + "/hash";
-  if (!Firebase.RTDB.setString(&fbdo, pSalt.c_str(), saltHex)) {
-    Serial.println("Firebase write salt error: " + fbdo.errorReason());
+  else
+  {
+    free(tmp);
     return false;
   }
-  if (!Firebase.RTDB.setString(&fbdo, pHash.c_str(), hashHex)) {
-    Serial.println("Firebase write hash error: " + fbdo.errorReason());
-    return false;
-  }
-  return true;
 }
 
-bool getPasswordFromFirebase(const String &name, String &outSaltHex, String &outHashHex) {
-  String pBase = "/passwords/" + name;
-  String pSalt = pBase + "/salt";
-  String pHash = pBase + "/hash";
-  if (!Firebase.RTDB.getString(&fbdo, pSalt.c_str())) {
-    Serial.println("Firebase read salt error: " + fbdo.errorReason());
-    return false;
-  }
-  outSaltHex = fbdo.stringData();
-  if (!Firebase.RTDB.getString(&fbdo, pHash.c_str())) {
-    Serial.println("Firebase read hash error: " + fbdo.errorReason());
-    return false;
-  }
-  outHashHex = fbdo.stringData();
-  return true;
+// ====== HELPERS: Random bytes ======
+void random_bytes(uint8_t *buf, size_t len)
+{
+  esp_fill_random(buf, len);
 }
 
-// ---------- WiFi ----------
-void connectWiFi() {
-  Serial.print("Connecting to WiFi");
-  WiFi.setHostname(HOSTNAME);
-  WiFi.begin(SSID, PASSWORD);
-  int tries = 0;
-  while (WiFi.status() != WL_CONNECTED && tries < 60) {
-    delay(500);
+// ====== AES-GCM wrappers (mbedTLS) ======
+// key_len bytes (32), iv_len should be 12, tag_len typically 16
+bool aes256_gcm_encrypt(const uint8_t *key, size_t key_len,
+                        const uint8_t *iv, size_t iv_len,
+                        const uint8_t *plain, size_t plain_len,
+                        uint8_t *out_cipher, uint8_t *out_tag, size_t tag_len)
+{
+  if (key_len != 32 || iv_len != 12 || tag_len < 12)
+    return false;
+  mbedtls_gcm_context gcm;
+  mbedtls_gcm_init(&gcm);
+  if (mbedtls_gcm_setkey(&gcm, MBEDTLS_CIPHER_ID_AES, key, key_len * 8) != 0)
+  {
+    mbedtls_gcm_free(&gcm);
+    return false;
+  }
+  int rc = mbedtls_gcm_crypt_and_tag(&gcm,
+                                     MBEDTLS_GCM_ENCRYPT,
+                                     plain_len,
+                                     iv, iv_len,
+                                     NULL, 0,
+                                     plain, out_cipher,
+                                     tag_len, out_tag);
+  mbedtls_gcm_free(&gcm);
+  return (rc == 0);
+}
+
+bool aes256_gcm_decrypt(const uint8_t *key, size_t key_len,
+                        const uint8_t *iv, size_t iv_len,
+                        const uint8_t *cipher, size_t cipher_len,
+                        const uint8_t *tag, size_t tag_len,
+                        uint8_t *out_plain)
+{
+  if (key_len != 32 || iv_len != 12 || tag_len < 12)
+    return false;
+  mbedtls_gcm_context gcm;
+  mbedtls_gcm_init(&gcm);
+  if (mbedtls_gcm_setkey(&gcm, MBEDTLS_CIPHER_ID_AES, key, key_len * 8) != 0)
+  {
+    mbedtls_gcm_free(&gcm);
+    return false;
+  }
+  int rc = mbedtls_gcm_auth_decrypt(&gcm,
+                                    cipher_len,
+                                    iv, iv_len,
+                                    NULL, 0,
+                                    tag, tag_len,
+                                    cipher, out_plain);
+  mbedtls_gcm_free(&gcm);
+  return (rc == 0);
+}
+
+// ====== SHA-256 helpers ======
+void sha256_bytes(const uint8_t *data, size_t len, uint8_t out32[32])
+{
+  mbedtls_sha256_ret(data, len, out32, 0);
+}
+
+String sha256_hex_string(const char *s)
+{
+  uint8_t out[32];
+  sha256_bytes((const uint8_t *)s, strlen(s), out);
+  // hex
+  char buf[65];
+  buf[64] = 0;
+  for (int i = 0; i < 32; i++)
+    sprintf(buf + i * 2, "%02x", out[i]);
+  return String(buf);
+}
+
+bool sha256_equals_input(const char *input, const uint8_t expected_hash[32])
+{
+  uint8_t out[32];
+  sha256_bytes((const uint8_t *)input, strlen(input), out);
+  return (memcmp(out, expected_hash, 32) == 0);
+}
+
+// ====== Firebase REST helpers (simple) ======
+String firebase_put(const String &path, const String &json_payload)
+{
+  WiFiClientSecure client;
+  client.setInsecure(); // dev only - replace for production
+  HTTPClient https;
+  String url = String("https://") + FIREBASE_HOST + path + ".json";
+  if (strlen(FIREBASE_AUTH) > 0)
+    url += String("?auth=") + FIREBASE_AUTH;
+  https.begin(client, url);
+  https.addHeader("Content-Type", "application/json");
+  int code = https.PUT(json_payload);
+  String resp = https.getString();
+  https.end();
+  if (code >= 200 && code < 300)
+    return resp;
+  return String(); // empty means fail
+}
+
+String firebase_get(const String &path)
+{
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient https;
+  String url = String("https://") + FIREBASE_HOST + path + ".json";
+  if (strlen(FIREBASE_AUTH) > 0)
+    url += String("?auth=") + FIREBASE_AUTH;
+  https.begin(client, url);
+  int code = https.GET();
+  String resp = https.getString();
+  https.end();
+  if (code >= 200 && code < 300)
+    return resp;
+  return String();
+}
+
+// ====== Serial helper (read line) ======
+String serialReadLine()
+{
+  String s;
+  while (true)
+  {
+    while (Serial.available() == 0)
+    {
+      delay(10);
+    }
+    char c = Serial.read();
+    if (c == '\r')
+      continue;
+    if (c == '\n')
+      break;
+    s += c;
+    if (s.length() >= MAX_SERIAL_READ - 1)
+      break;
+  }
+  s.trim();
+  return s;
+}
+
+// ====== Program flows ======
+uint8_t MASTER_HASH[32];
+
+bool promptMasterPassphrase()
+{
+  int attempts = 0;
+  while (attempts < 3)
+  {
+    Serial.print("Enter passphrase to access: ");
+    String input = serialReadLine();
+    if (sha256_equals_input(input.c_str(), MASTER_HASH))
+    {
+      Serial.println("Auth OK.");
+      return true;
+    }
+    else
+    {
+      attempts++;
+      Serial.printf("Wrong pass (%d/3)\n", attempts);
+    }
+  }
+  Serial.println("Too many failed attempts. Timeout 60s.");
+  delay(60000);
+  return false;
+}
+
+void createPasswordFlow()
+{
+  Serial.println("-- CREATE NEW PASSWORD --");
+  Serial.print("Enter name (identifier): ");
+  String name = serialReadLine();
+  if (name.length() == 0)
+  {
+    Serial.println("Empty name. Aborting.");
+    return;
+  }
+
+  Serial.print("Enter plaintext password to store: ");
+  String pwd = serialReadLine();
+  size_t plain_len = pwd.length();
+  if (plain_len == 0)
+  {
+    Serial.println("Empty password. Aborting.");
+    return;
+  }
+
+  // generate key + iv
+  uint8_t key[32];
+  random_bytes(key, sizeof(key));
+  uint8_t iv[12];
+  random_bytes(iv, sizeof(iv));
+  uint8_t *cipher = (uint8_t *)malloc(plain_len);
+  uint8_t tag[16];
+
+  bool ok = aes256_gcm_encrypt(key, sizeof(key), iv, sizeof(iv),
+                               (const uint8_t *)pwd.c_str(), plain_len,
+                               cipher, tag, sizeof(tag));
+  if (!ok)
+  {
+    Serial.println("Encryption failed.");
+    free(cipher);
+    return;
+  }
+
+  // base64 encode fields
+  String b64_cipher = base64_encode_buf(cipher, plain_len);
+  String b64_iv = base64_encode_buf(iv, sizeof(iv));
+  String b64_tag = base64_encode_buf(tag, sizeof(tag));
+  String b64_key = base64_encode_buf(key, sizeof(key));
+
+  // build JSON for ciphertext
+  StaticJsonDocument<512> doc;
+  doc["ciphertext"] = b64_cipher;
+  doc["iv"] = b64_iv;
+  doc["tag"] = b64_tag;
+  String jsonCipher;
+  serializeJson(doc, jsonCipher);
+
+  // upload ciphertext
+  String pathCipher = String("/ciphertexts/") + name;
+  String res1 = firebase_put(pathCipher, jsonCipher);
+  if (res1.length() == 0)
+  {
+    Serial.println("Failed to upload ciphertext to Firebase.");
+    free(cipher);
+    return;
+  }
+
+  // store key under /keys/<name>
+  StaticJsonDocument<256> dock;
+  dock["key"] = b64_key;
+  String jsonKey;
+  serializeJson(dock, jsonKey);
+  String pathKey = String("/keys/") + name;
+  String res2 = firebase_put(pathKey, jsonKey);
+  if (res2.length() == 0)
+  {
+    Serial.println("Failed to upload key to Firebase.");
+    // Consider deleting ciphertext in real app - omitted for brevity
+    free(cipher);
+    return;
+  }
+
+  Serial.println("Create success.");
+  Serial.printf("Uploaded ciphertext path: %s\n", pathCipher.c_str());
+  Serial.printf("Stored key path: %s\n", pathKey.c_str());
+
+  // zero sensitive memory
+  memset(key, 0, sizeof(key));
+  memset(iv, 0, sizeof(iv));
+  memset(tag, 0, sizeof(tag));
+  free(cipher);
+}
+
+void getPasswordFlow()
+{
+  Serial.println("-- GET / DECRYPT --");
+  Serial.print("Enter name (identifier): ");
+  String name = serialReadLine();
+  if (name.length() == 0)
+  {
+    Serial.println("Empty name. Aborting.");
+    return;
+  }
+
+  // Before fetching, require master passphrase again (as requested)
+  Serial.println("Enter passphrase for decryption:");
+  String pass = serialReadLine();
+  if (!sha256_equals_input(pass.c_str(), MASTER_HASH))
+  {
+    Serial.println("Authentication failed. Aborting.");
+    return;
+  }
+
+  // fetch ciphertext JSON
+  String pathCipher = String("/ciphertexts/") + name;
+  String resCipher = firebase_get(pathCipher);
+  if (resCipher.length() == 0)
+  {
+    Serial.println("Failed to fetch ciphertext or entry not found.");
+    return;
+  }
+
+  // parse JSON
+  StaticJsonDocument<1024> doc;
+  DeserializationError err = deserializeJson(doc, resCipher);
+  if (err)
+  {
+    Serial.println("Invalid JSON fetched for ciphertext.");
+    return;
+  }
+  String b64_cipher = doc["ciphertext"] | "";
+  String b64_iv = doc["iv"] | "";
+  String b64_tag = doc["tag"] | "";
+  if (b64_cipher == "" || b64_iv == "" || b64_tag == "")
+  {
+    Serial.println("Missing fields in ciphertext record.");
+    return;
+  }
+
+  // fetch key JSON
+  String pathKey = String("/keys/") + name;
+  String resKey = firebase_get(pathKey);
+  if (resKey.length() == 0)
+  {
+    Serial.println("Failed to fetch key or key entry not found.");
+    return;
+  }
+  StaticJsonDocument<512> dock;
+  DeserializationError err2 = deserializeJson(dock, resKey);
+  if (err2)
+  {
+    Serial.println("Invalid JSON fetched for key.");
+    return;
+  }
+  String b64_key = dock["key"] | "";
+  if (b64_key == "")
+  {
+    Serial.println("Missing key field in key record.");
+    return;
+  }
+
+  // decode base64
+  size_t cipher_max = (b64_cipher.length() / 4) * 3 + 4;
+  uint8_t *cipher = (uint8_t *)malloc(cipher_max);
+  size_t cipher_len = 0;
+  if (!base64_decode_to_buf(b64_cipher, cipher, cipher_len))
+  {
+    free(cipher);
+    Serial.println("Bad base64 cipher");
+    return;
+  }
+
+  uint8_t iv[12];
+  size_t iv_len = 0;
+  if (!base64_decode_to_buf(b64_iv, iv, iv_len) || iv_len != 12)
+  {
+    free(cipher);
+    Serial.println("Bad IV");
+    return;
+  }
+
+  uint8_t tag[32];
+  size_t tag_len = 0;
+  if (!base64_decode_to_buf(b64_tag, tag, tag_len) || tag_len < 12)
+  {
+    free(cipher);
+    Serial.println("Bad tag");
+    return;
+  }
+
+  uint8_t key[32];
+  size_t key_len = 0;
+  if (!base64_decode_to_buf(b64_key, key, key_len) || key_len != 32)
+  {
+    free(cipher);
+    Serial.println("Bad key stored");
+    return;
+  }
+
+  // decrypt
+  uint8_t *plain = (uint8_t *)malloc(cipher_len + 1);
+  bool ok = aes256_gcm_decrypt(key, sizeof(key), iv, iv_len, cipher, cipher_len, tag, tag_len, plain);
+  if (!ok)
+  {
+    Serial.println("Decryption failed (auth tag mismatch or wrong key).");
+  }
+  else
+  {
+    plain[cipher_len] = 0;
+    Serial.printf("Decrypted plaintext for '%s': %s\n", name.c_str(), (char *)plain);
+  }
+
+  // cleanup & zero sensitive memory
+  memset(key, 0, sizeof(key));
+  memset(iv, 0, sizeof(iv));
+  free(cipher);
+  free(plain);
+}
+
+// ====== Setup and main loop ======
+void connectWiFi()
+{
+  Serial.printf("Connecting to WiFi '%s' ...\n", WIFI_SSID);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+
+  int cnt = 0;
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(300);
     Serial.print(".");
-    tries++;
+    if (++cnt > 200)
+    {
+      Serial.println("\nWiFi connect timeout. Restarting.");
+      ESP.restart();
+    }
   }
-  Serial.println();
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.print("IP: ");
-    Serial.println(WiFi.localIP());
-    digitalWrite(LED_PIN, HIGH);
-  } else {
-    Serial.println("WiFi connect failed");
-  }
+  Serial.println("\nWiFi connected. IP: " + WiFi.localIP().toString());
 }
 
-// ---------- Web UI pages ----------
-const char indexPage[] PROGMEM = R"rawliteral(
-<!doctype html>
-<html>
-<head><meta charset="utf-8"><title>ESP Password Manager</title></head>
-<body>
-<h2>ESP Password Manager (Web UI)</h2>
-<ul>
-<li><a href="/create">Create Password</a></li>
-<li><a href="/verify">Verify Password</a></li>
-<li><a href="/quit">Quit (reboot)</a></li>
-</ul>
-</body>
-</html>
-)rawliteral";
-
-const char createPage[] PROGMEM = R"rawliteral(
-<!doctype html>
-<html>
-<head><meta charset="utf-8"><title>Create</title></head>
-<body>
-<h3>Create Password</h3>
-<form method="POST" action="/create">
-<label>Entry Name (id): <input name="name" required></label><br>
-<label>Password: <input name="password" required></label><br>
-<button type="submit">Store</button>
-</form>
-<p><a href="/">Home</a></p>
-</body>
-</html>
-)rawliteral";
-
-const char verifyPage[] PROGMEM = R"rawliteral(
-<!doctype html>
-<html>
-<head><meta charset="utf-8"><title>Verify</title></head>
-<body>
-<h3>Verify Password</h3>
-<form method="POST" action="/verify">
-<label>Entry Name (id): <input name="name" required></label><br>
-<label>Auth SHA256 of "YUTH": <input name="authHex" required></label><br>
-<label>Password to verify: <input name="password" required></label><br>
-<button type="submit">Verify</button>
-</form>
-<p><a href="/">Home</a></p>
-</body>
-</html>
-)rawliteral";
-
-const char quitPage[] PROGMEM = R"rawliteral(
-<!doctype html>
-<html>
-<head><meta charset="utf-8"><title>Quit</title></head>
-<body>
-<h3>Rebooting ESP...</h3>
-<p>If the device does not reboot, unplug and replug it.</p>
-</body>
-</html>
-)rawliteral";
-
-// ---------- Web handlers ----------
-void handleRoot() { server.send_P(200, "text/html", indexPage); }
-
-void handleCreateGet() { server.send_P(200, "text/html", createPage); }
-
-void handleCreatePost() {
-  // read form values
-  String name = server.arg("name");
-  String pwd  = server.arg("password");
-  if (name.length() == 0 || pwd.length() == 0) {
-    server.send(400, "text/plain", "Missing fields");
-    return;
-  }
-  String salt = genSaltHex(16);
-  String hash;
-  if (!hashWithSaltHex(salt, pwd, hash)) {
-    server.send(500, "text/plain", "Hash error");
-    return;
-  }
-  bool ok = storePasswordToFirebase(name, salt, hash);
-  if (ok) server.send(200, "text/html", "<p>Stored successfully.</p><p><a href='/'>Home</a></p>");
-  else server.send(500, "text/plain", "Firebase store failed");
-}
-
-void handleVerifyGet() { server.send_P(200, "text/html", verifyPage); }
-
-void handleVerifyPost() {
-  String name = server.arg("name");
-  String authHex = server.arg("authHex");
-  String pwd = server.arg("password");
-  if (name.length() == 0 || authHex.length() == 0 || pwd.length() == 0) {
-    server.send(400, "text/plain", "Missing fields");
-    return;
-  }
-  // normalize and compare auth hash
-  String expected = String(MASTER_PASSWORD_HASH);
-  if (!authHex.equalsIgnoreCase(expected)) {
-    server.send(403, "text/plain", "Authorization hash invalid");
-    return;
-  }
-  String saltHex, storedHash;
-  if (!getPasswordFromFirebase(name, saltHex, storedHash)) {
-    server.send(404, "text/plain", "Entry not found");
-    return;
-  }
-  String tryHash;
-  if (!hashWithSaltHex(saltHex, pwd, tryHash)) {
-    server.send(500, "text/plain", "Hash error");
-    return;
-  }
-  if (tryHash.equalsIgnoreCase(storedHash)) {
-    server.send(200, "text/html", "<p>Password VERIFIED.</p><p><a href='/'>Home</a></p>");
-  } else {
-    server.send(200, "text/html", "<p>Password INVALID.</p><p><a href='/'>Home</a></p>");
-  }
-}
-
-void handleQuit() {
-  server.send_P(200, "text/html", quitPage);
-  delay(500);
-  ESP.restart();
-}
-
-void startWebServer() {
-  server.on("/", HTTP_GET, handleRoot);
-  server.on("/create", HTTP_GET, handleCreateGet);
-  server.on("/create", HTTP_POST, handleCreatePost);
-  server.on("/verify", HTTP_GET, handleVerifyGet);
-  server.on("/verify", HTTP_POST, handleVerifyPost);
-  server.on("/quit", HTTP_GET, handleQuit);
-  server.begin();
-  Serial.println("Web server started. Visit http://" + WiFi.localIP().toString() + "/");
-}
-
-// ---------- Setup / Loop ----------
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   delay(200);
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
-
   connectWiFi();
-  firebaseInit();
 
-  // optional: also print master hash for convenience
-  Serial.println("Master SHA256(\"YUTH\") = " + String(MASTER_PASSWORD_HASH));
-  startWebServer();
+  // compute MASTER_HASH = SHA256("YUTH")
+  sha256_bytes((const uint8_t *)MASTER_SECRET, strlen(MASTER_SECRET), MASTER_HASH);
+
+  Serial.println("\n--- ESP32 AES-GCM Password Vault (Serial UI) ---");
+  // initial auth
+  if (!promptMasterPassphrase())
+  {
+    Serial.println("Initial auth failed. Rebooting...");
+    ESP.restart();
+  }
+
+  // main menu loop - handled in loop()
 }
 
-void loop() {
-  server.handleClient();
+void loop()
+{
+  // menu
+  Serial.println("\nMain Menu:");
+  Serial.println("1) Create Password");
+  Serial.println("2) Get Password");
+  Serial.println("3) Quit / Restart");
+  Serial.print("Choose option [1-3]: ");
+  String opt = serialReadLine();
+
+  if (opt == "1")
+  {
+    createPasswordFlow();
+  }
+  else if (opt == "2")
+  {
+    getPasswordFlow();
+  }
+  else if (opt == "3")
+  {
+    Serial.println("Quitting. Restarting device.");
+    delay(1000);
+    ESP.restart();
+  }
+  else
+  {
+    Serial.println("Invalid option.");
+  }
+
+  delay(200);
 }
