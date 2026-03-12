@@ -1,0 +1,187 @@
+# ================================================================
+# CUSTOM SURICATA DETECTION RULES
+# CADT Cybersecurity Lab — Wazuh + Suricata Integration
+# Version: 1.0 | March 2026
+#
+# Format: Suricata 8.x compatible
+# MITRE ATT&CK metadata included per rule
+# SID range: 9000001-9000099 (custom/local range)
+# ================================================================
+
+# ----------------------------------------------------------------
+# CATEGORY: Authentication Attacks
+# ----------------------------------------------------------------
+
+# SSH Brute Force Detection (T1110.001)
+# Fires when 10+ connection attempts to SSH port within 60 seconds.
+# Complements Wazuh rule 5763 (log-based) with network-level detection.
+alert tcp any any -> $HOME_NET 22 (
+  msg:"LOCAL SSH Brute Force Attempt Detected";
+  flow:to_server,not_established;
+  flags:S,12;
+  threshold:type threshold, track by_src, count 10, seconds 60;
+  classtype:attempted-admin;
+  sid:9000001;
+  rev:1;
+  metadata:affected_product SSH, attack_target Linux_Windows, 
+            mitre_tactic TA0006, mitre_technique T1110.001,
+            created_at 2026_03_01, signature_severity Major;)
+
+# RDP Brute Force Detection (T1110.003)
+alert tcp any any -> $HOME_NET 3389 (
+  msg:"LOCAL RDP Brute Force Attempt Detected";
+  flow:to_server;
+  threshold:type threshold, track by_src, count 10, seconds 60;
+  classtype:attempted-admin;
+  sid:9000002;
+  rev:1;
+  metadata:mitre_tactic TA0006, mitre_technique T1110.003,
+            created_at 2026_03_01, signature_severity Major;)
+
+# ----------------------------------------------------------------
+# CATEGORY: Network Reconnaissance
+# ----------------------------------------------------------------
+
+# TCP SYN Scan Detection (T1046)
+# Detects stealth SYN scans — RST response pattern to multiple ports
+alert tcp any any -> $HOME_NET any (
+  msg:"LOCAL TCP SYN Scan Detected from $(src_ip)";
+  flow:to_server;
+  flags:S,12;
+  threshold:type threshold, track by_src, count 50, seconds 10;
+  classtype:network-scan;
+  sid:9000003;
+  rev:1;
+  metadata:mitre_tactic TA0043, mitre_technique T1046,
+            created_at 2026_03_01, signature_severity Minor;)
+
+# Nmap Service Version Enumeration (T1046)
+# Detects banner grabbing patterns characteristic of nmap -sV
+alert tcp any any -> $HOME_NET any (
+  msg:"LOCAL Nmap Service Version Enumeration Detected";
+  flow:to_server,established;
+  content:"Nmap"; nocase;
+  classtype:network-scan;
+  sid:9000004;
+  rev:1;
+  metadata:mitre_tactic TA0043, mitre_technique T1046,
+            created_at 2026_03_01, signature_severity Minor;)
+
+# ----------------------------------------------------------------
+# CATEGORY: Web Application Attacks
+# ----------------------------------------------------------------
+
+# SQL Injection — UNION SELECT (T1190)
+# Detects UNION-based SQLi attempts in HTTP URI or body
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (
+  msg:"LOCAL SQL Injection UNION SELECT Attempt";
+  flow:established,to_server;
+  content:"UNION"; nocase; http_uri;
+  content:"SELECT"; nocase; http_uri;
+  pcre:"/UNION.{0,10}SELECT/Ui";
+  classtype:web-application-attack;
+  sid:9000005;
+  rev:2;
+  metadata:mitre_tactic TA0001, mitre_technique T1190,
+            created_at 2026_03_01, signature_severity Critical;)
+
+# SQL Injection — Boolean-based blind (T1190)
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (
+  msg:"LOCAL SQL Injection Boolean Blind Attempt";
+  flow:established,to_server;
+  content:"AND"; nocase; http_uri;
+  pcre:"/(AND|OR)\s+\d+=\d+/Ui";
+  classtype:web-application-attack;
+  sid:9000006;
+  rev:1;
+  metadata:mitre_tactic TA0001, mitre_technique T1190,
+            created_at 2026_03_01, signature_severity Major;)
+
+# SQLmap User-Agent Detection (T1190)
+# SQLmap sends distinctive user-agent strings
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (
+  msg:"LOCAL SQLmap Scanner User-Agent Detected";
+  flow:established,to_server;
+  content:"sqlmap"; nocase; http_user_agent;
+  classtype:web-application-attack;
+  sid:9000007;
+  rev:1;
+  metadata:mitre_tactic TA0001, mitre_technique T1190,
+            created_at 2026_03_01, signature_severity Major;)
+
+# ----------------------------------------------------------------
+# CATEGORY: Command & Control
+# ----------------------------------------------------------------
+
+# IRC-based C2 Communication (T1071)
+# Detects IRC protocol commands used for C2 channels
+alert tcp $HOME_NET any -> $EXTERNAL_NET 6667:6669 (
+  msg:"LOCAL Potential IRC C2 Channel - NICK/USER Commands";
+  flow:established,to_server;
+  content:"NICK"; depth:4;
+  content:"USER";
+  classtype:policy-violation;
+  sid:9000008;
+  rev:1;
+  metadata:mitre_tactic TA0011, mitre_technique T1071,
+            created_at 2026_03_01, signature_severity Major;)
+
+# Netcat Reverse Shell Pattern (T1059.004)
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (
+  msg:"LOCAL Possible Netcat Reverse Shell Established";
+  flow:established,to_server;
+  content:"/bin/bash"; 
+  classtype:misc-attack;
+  sid:9000009;
+  rev:1;
+  metadata:mitre_tactic TA0011, mitre_technique T1059.004,
+            created_at 2026_03_01, signature_severity Critical;)
+
+# ----------------------------------------------------------------
+# CATEGORY: Denial of Service
+# ----------------------------------------------------------------
+
+# ICMP Flood Detection (T1498.001)
+# High-rate ICMP traffic from single source — possible flood attack
+alert icmp any any -> $HOME_NET any (
+  msg:"LOCAL ICMP Flood Attack Detected";
+  itype:8;
+  threshold:type both, track by_src, count 1000, seconds 10;
+  classtype:denial-of-service;
+  sid:9000010;
+  rev:1;
+  metadata:mitre_tactic TA0040, mitre_technique T1498.001,
+            created_at 2026_03_01, signature_severity Major;)
+
+# Ping Sweep Detection (T1046)
+alert icmp any any -> $HOME_NET any (
+  msg:"LOCAL ICMP Ping Sweep Detected";
+  itype:8; icode:0;
+  threshold:type threshold, track by_src, count 10, seconds 5;
+  classtype:network-scan;
+  sid:9000011;
+  rev:1;
+  metadata:mitre_tactic TA0043, mitre_technique T1046,
+            created_at 2026_03_01, signature_severity Minor;)
+
+# ----------------------------------------------------------------
+# CATEGORY: Malware & Execution
+# ----------------------------------------------------------------
+
+# EICAR Test File Transfer (T1204.002)
+# Detects EICAR test string in network traffic
+alert tcp any any -> $HOME_NET any (
+  msg:"LOCAL EICAR Test File Detected in Network Transfer";
+  flow:established;
+  content:"EICAR-STANDARD-ANTIVIRUS-TEST-FILE";
+  classtype:misc-activity;
+  sid:9000012;
+  rev:1;
+  metadata:mitre_tactic TA0002, mitre_technique T1204.002,
+            created_at 2026_03_01, signature_severity Minor;)
+
+# ----------------------------------------------------------------
+# END OF CUSTOM RULES
+# Total custom rules: 12
+# Complement to Emerging Threats ruleset (48,919 rules)
+# ----------------------------------------------------------------

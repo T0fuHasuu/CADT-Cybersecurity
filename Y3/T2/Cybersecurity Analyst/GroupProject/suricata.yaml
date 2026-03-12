@@ -1,0 +1,214 @@
+%YAML 1.1
+---
+# ================================================================
+# SURICATA CONFIGURATION — CADT SOC LAB
+# Version: Suricata 8.0.3
+# Note: This is a lab-optimized config. See inline comments for
+#       production hardening recommendations.
+# ================================================================
+
+vars:
+  address-groups:
+    HOME_NET: "[192.168.1.0/24]"
+    # ⚠️ LAB SETTING: EXTERNAL_NET set to 'any' to capture
+    # intra-LAN attack traffic. Change to !$HOME_NET in production.
+    EXTERNAL_NET: "any"
+    HTTP_SERVERS: "$HOME_NET"
+    SMTP_SERVERS: "$HOME_NET"
+    SQL_SERVERS: "$HOME_NET"
+    DNS_SERVERS: "$HOME_NET"
+    TELNET_SERVERS: "$HOME_NET"
+    AIM_SERVERS: "$EXTERNAL_NET"
+    DC_SERVERS: "$HOME_NET"
+    DNP3_SERVER: "$HOME_NET"
+    DNP3_CLIENT: "$HOME_NET"
+    MODBUS_CLIENT: "$HOME_NET"
+    MODBUS_SERVER: "$HOME_NET"
+    ENIP_CLIENT: "$HOME_NET"
+    ENIP_SERVER: "$HOME_NET"
+
+  port-groups:
+    HTTP_PORTS: "80"
+    SHELLCODE_PORTS: "!80"
+    ORACLE_PORTS: 1521
+    SSH_PORTS: 22
+    DNP3_PORTS: 20000
+    MODBUS_PORTS: 502
+    FILE_DATA_PORTS: "[$HTTP_PORTS,110,143]"
+    FTP_PORTS: 21
+    VXLAN_PORTS: 4789
+    TEREDO_PORTS: 3544
+
+# ================================================================
+# DEFAULT RULE PATH
+# ================================================================
+default-rule-path: /var/lib/suricata/rules
+
+rule-files:
+  - suricata.rules
+  - custom.rules          # ← Our custom rules
+
+# ================================================================
+# OUTPUTS
+# ================================================================
+outputs:
+  # EVE JSON — primary output consumed by Wazuh
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: /var/log/suricata/eve.json
+      # ⚠️ LAB: all types enabled. In production, disable 'flow'
+      # and 'netflow' to reduce disk I/O.
+      types:
+        - alert:
+            payload: yes
+            payload-printable: yes
+            packet: yes
+            http-body: yes
+            http-body-printable: yes
+            metadata: yes
+            tagged-packets: yes
+            vars:
+              flowbits: yes
+        - anomaly:
+            enabled: yes
+        - http:
+            extended: yes
+        - dns:
+            query: yes
+            answer: yes
+        - tls:
+            extended: yes
+        - files:
+            force-magic: yes
+        - smtp:
+        - dnp3
+        - ftp
+        - rdp
+        - nfs
+        - smb
+        - tftp
+        - ikev2
+        - krb5
+        - ntp
+        - dhcp:
+            enabled: yes
+            extended: yes
+        - ssh
+        - flow
+        - netflow
+
+  # Fast log (human-readable alerts)
+  - fast:
+      enabled: yes
+      filename: /var/log/suricata/fast.log
+      append: yes
+
+  # Stats output
+  - stats:
+      enabled: yes
+      filename: /var/log/suricata/stats.log
+      totals: yes
+      threads: no
+
+# ================================================================
+# DETECTION ENGINE
+# ================================================================
+detect:
+  profile: medium
+  custom-values:
+    toclient-groups: 3
+    toserver-groups: 25
+  sgh-mpm-context: auto
+  inspection-recursion-limit: 3000
+
+# ================================================================
+# APP LAYER PROTOCOLS
+# ================================================================
+app-layer:
+  protocols:
+    tls:
+      enabled: yes
+      detection-ports:
+        dp: 443
+    dcerpc:
+      udp:
+        enabled: yes
+        detection-ports:
+          dp: 135
+      tcp:
+        enabled: yes
+        detection-ports:
+          dp: 135
+    ftp:
+      enabled: yes
+    rdp:
+      enabled: yes
+    ssh:
+      enabled: yes
+    http:
+      enabled: yes
+      # libhtp configuration
+      libhtp:
+        default-config:
+          personality: IDS
+          request-body-limit: 100kb
+          response-body-limit: 100kb
+          request-body-minimal-inspect-size: 32kb
+          request-body-inspect-window: 4kb
+          response-body-minimal-inspect-size: 40kb
+          response-body-inspect-window: 16kb
+          response-body-decompress-layer-limit: 2
+          http-body-inline: auto
+          double-decode-path: no
+          double-decode-query: no
+    smtp:
+      enabled: yes
+    imap:
+      enabled: detection-only
+    dns:
+      tcp:
+        enabled: yes
+        detection-ports:
+          dp: 53
+      udp:
+        enabled: yes
+        detection-ports:
+          dp: 53
+
+# ================================================================
+# THREADING
+# ================================================================
+threading:
+  set-cpu-affinity: no
+  cpu-affinity:
+    - management-cpu-set:
+        cpu: [ 0 ]
+    - receive-cpu-set:
+        cpu: [ 0 ]
+    - worker-cpu-set:
+        cpu: [ "all" ]
+        mode: "balanced"
+        prio:
+          low: [ 0 ]
+          medium: [ "1-2" ]
+          high: [ 3 ]
+          default: "medium"
+  detect-thread-ratio: 1.0
+
+# ================================================================
+# LOGGING
+# ================================================================
+logging:
+  default-log-level: notice
+  outputs:
+    - console:
+        enabled: no
+    - file:
+        enabled: yes
+        level: info
+        filename: /var/log/suricata/suricata.log
+    - syslog:
+        enabled: no
+        facility: local5
+        format: "[%i] <%d> -- "

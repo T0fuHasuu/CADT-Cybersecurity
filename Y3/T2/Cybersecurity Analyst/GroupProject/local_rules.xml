@@ -1,0 +1,169 @@
+<!-- ================================================================
+     CUSTOM WAZUH DETECTION RULES
+     CADT Cybersecurity Lab — Wazuh + Suricata Integration
+     Version: 1.0 | March 2026
+     
+     MITRE ATT&CK mappings included per rule.
+     All rules use ID range 100000+ (custom range).
+     ================================================================ -->
+
+<group name="local,syslog,sshd,authentication,">
+
+  <!-- ============================================================
+       AUTHENTICATION ATTACKS
+       ============================================================ -->
+
+  <!-- SSH Brute Force — Enhanced threshold (T1110.001)
+       Fires when 8+ SSH auth failures occur within 60 seconds.
+       Tuned up from default 3 to reduce FP on dev environments. -->
+  <rule id="100001" level="10" frequency="8" timeframe="60">
+    <if_matched_sid>5710</if_matched_sid>
+    <description>SSH brute force: 8+ authentication failures in 60 seconds from $(srcip)</description>
+    <mitre>
+      <id>T1110.001</id>
+    </mitre>
+    <group>authentication_failures,brute_force,pci_dss_10.2.4,pci_dss_10.2.5,</group>
+  </rule>
+
+  <!-- SSH Successful Login After Brute Force (T1078) -->
+  <rule id="100002" level="14">
+    <if_matched_sid>100001</if_matched_sid>
+    <if_sid>5715</if_sid>
+    <same_source_ip/>
+    <description>CRITICAL: Successful SSH login after brute force attempt from $(srcip)</description>
+    <mitre>
+      <id>T1110.001</id>
+      <id>T1078</id>
+    </mitre>
+    <group>authentication_failures,brute_force,authentication_success,</group>
+  </rule>
+
+</group>
+
+<group name="local,windows,rdp,authentication,">
+
+  <!-- ============================================================
+       RDP ATTACK DETECTION
+       ============================================================ -->
+
+  <!-- RDP Brute Force via Windows Event ID 4625 (T1110.003)
+       Detects repeated network logon failures targeting RDP (logon type 3). -->
+  <rule id="100100" level="10">
+    <if_group>windows</if_group>
+    <field name="win.system.eventID">^4625$</field>
+    <field name="win.eventdata.logonType">^3$</field>
+    <description>RDP Attack Detected: Network logon failure (Event ID 4625)</description>
+    <mitre>
+      <id>T1110.003</id>
+    </mitre>
+    <group>rdp,authentication_failures,brute_force,</group>
+  </rule>
+
+  <!-- RDP Successful Login After Brute Force -->
+  <rule id="100101" level="14" frequency="5" timeframe="300">
+    <if_matched_sid>100100</if_matched_sid>
+    <description>CRITICAL: Successful RDP login after brute force from $(srcip)</description>
+    <mitre>
+      <id>T1110.003</id>
+      <id>T1078</id>
+    </mitre>
+    <group>rdp,authentication_failures,authentication_success,</group>
+  </rule>
+
+</group>
+
+<group name="local,windows,powershell,defense_evasion,">
+
+  <!-- ============================================================
+       POWERSHELL OBFUSCATION DETECTION
+       ============================================================ -->
+
+  <!-- Base64-Encoded PowerShell Command (T1027.010)
+       Detects -EncodedCommand / -enc flag in PowerShell invocations.
+       Lab: fired as 92057/92213; this custom rule adds ATT&CK context. -->
+  <rule id="100200" level="12">
+    <if_sid>92057</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)-[Ee]nc(odedCommand)?</field>
+    <description>Suspicious: Base64-encoded PowerShell command executed by $(win.eventdata.user)</description>
+    <mitre>
+      <id>T1027.010</id>
+    </mitre>
+    <group>powershell,obfuscation,defense_evasion,</group>
+  </rule>
+
+  <!-- PowerShell Download Cradle (T1059.001) -->
+  <rule id="100201" level="12">
+    <if_sid>92057</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(DownloadString|DownloadFile|IEX|Invoke-Expression|WebClient)</field>
+    <description>Suspicious: PowerShell download cradle detected — possible fileless malware</description>
+    <mitre>
+      <id>T1059.001</id>
+      <id>T1105</id>
+    </mitre>
+    <group>powershell,fileless,execution,</group>
+  </rule>
+
+</group>
+
+<group name="local,syscheck,file_integrity,">
+
+  <!-- ============================================================
+       FILE INTEGRITY MONITORING ENHANCEMENTS
+       ============================================================ -->
+
+  <!-- Critical Linux file modified — escalate FIM to high severity -->
+  <rule id="100300" level="12">
+    <if_sid>550</if_sid>
+    <field name="file">/etc/passwd|/etc/shadow|/etc/sudoers</field>
+    <description>CRITICAL: Privileged file modified: $(file) — possible account manipulation</description>
+    <mitre>
+      <id>T1136.001</id>
+      <id>T1003</id>
+    </mitre>
+    <group>syscheck,rootkit,integrity_checking,</group>
+  </rule>
+
+  <!-- Web directory file creation — possible web shell (T1505.003) -->
+  <rule id="100301" level="10">
+    <if_sid>554</if_sid>
+    <field name="file" type="pcre2">(?i)\.(php|asp|aspx|jsp|cfm|cgi|pl)$</field>
+    <field name="file">/var/www|/inetpub/wwwroot</field>
+    <description>Possible web shell: script file created in web directory: $(file)</description>
+    <mitre>
+      <id>T1505.003</id>
+    </mitre>
+    <group>syscheck,web_shell,persistence,</group>
+  </rule>
+
+</group>
+
+<group name="local,linux,cron,persistence,">
+
+  <!-- ============================================================
+       PERSISTENCE MECHANISMS
+       ============================================================ -->
+
+  <!-- Crontab modification — escalate with ATT&CK context (T1053.003)
+       Built-in rule 2832 fires; this custom rule adds higher severity for suspicious patterns. -->
+  <rule id="100400" level="10">
+    <if_sid>2832</if_sid>
+    <description>Crontab modified — verify change is authorized. Possible persistence: $(file)</description>
+    <mitre>
+      <id>T1053.003</id>
+    </mitre>
+    <group>cron,persistence,</group>
+  </rule>
+
+  <!-- Reverse shell in crontab (T1053.003 + T1059.004) -->
+  <rule id="100401" level="14">
+    <if_sid>2832</if_sid>
+    <match>bash -i|/dev/tcp|nc -e|netcat|mkfifo</match>
+    <description>CRITICAL: Reverse shell cron job detected — active C2 persistence mechanism</description>
+    <mitre>
+      <id>T1053.003</id>
+      <id>T1059.004</id>
+    </mitre>
+    <group>cron,persistence,c2,</group>
+  </rule>
+
+</group>
