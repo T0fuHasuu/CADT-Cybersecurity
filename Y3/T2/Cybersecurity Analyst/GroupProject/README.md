@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <div align="center">
 
 <img src="https://img.shields.io/badge/Wazuh-5.0+-00A9CE?style=for-the-badge&logo=wazuh&logoColor=white"/>
@@ -438,7 +437,3 @@ The detection rules in `/rules/` are released for educational and research use. 
 
 </div>
 =======
-# Procedure and Guideline For Implementation
-
-
->>>>>>> 98dcc8b0b15115fdbdfe1bbb55892e169af5d481
