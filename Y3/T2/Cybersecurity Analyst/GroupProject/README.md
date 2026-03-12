@@ -436,4 +436,3 @@ The detection rules in `/rules/` are released for educational and research use. 
 *Built with 🔒 at Cambodia Academy of Digital Technology · 2026*
 
 </div>
-=======
