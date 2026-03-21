@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:aapt="http://schemas.android.com/aapt" android:layout_width="match_parent" android:layout_height="wrap_content">
-    <TextView android:textSize="25sp" android:textStyle="bold" android:textColor="@color/black" android:gravity="center" android:id="@+id/usernameTextView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"/>
-    <ListView android:id="@+id/messageListView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="50dp" android:stackFromBottom="true" android:transcriptMode="alwaysScroll"/>
-    <LinearLayout android:orientation="horizontal" android:padding="8dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true">
-        <EditText android:id="@+id/messageEditText" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Type a message..." android:maxLines="3" android:layout_weight="1" android:inputType="textMultiLine" android:imeOptions="actionSend" android:layout_marginEnd="8dp"/>
-        <Button android:id="@+id/sendButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Send"/>
-    </LinearLayout>
-</RelativeLayout>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:aapt="http://schemas.android.com/aapt" android:background="@drawable/background" android:layout_width="match_parent" android:layout_height="match_parent">
-    <TextView android:textSize="35dp" android:textStyle="bold" android:textColor="@color/white" android:gravity="center" android:id="@+id/signin" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="50dp" android:text="Secret Chat"/>
-    <EditText android:textColor="@color/white" android:textColorHint="@color/white" android:id="@+id/username" android:background="#30ffffff" android:padding="20dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="10dp" android:hint="Username" android:drawableLeft="@drawable/account_circle" android:drawablePadding="20dp" android:layout_below="@+id/signin"/>
-    <com.google.android.material.button.MaterialButton android:id="@+id/loginbtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="20dp" android:text="LOGIN" android:layout_below="@+id/username" android:layout_centerHorizontal="true" android:backgroundTint="@color/design_default_color_on_secondary"/>
-</RelativeLayout>
