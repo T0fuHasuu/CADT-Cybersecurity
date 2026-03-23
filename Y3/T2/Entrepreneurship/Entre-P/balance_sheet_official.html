@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 1 Startup Balance Sheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    font-size: 13.5px;
+    background: #e8e4dc;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .page {
+    background: #fdfcf8;
+    width: 720px;
+    border: 1px solid #b8b0a0;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    padding: 48px 52px 52px 52px;
+  }
+
+  /* ---- DOCUMENT HEADER ---- */
+  .doc-title {
+    text-align: center;
+    border-bottom: 3px double #1a2a4a;
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+  }
+
+  .doc-title h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #1a2a4a;
+  }
+
+  .doc-title .subtitle {
+    font-size: 12.5px;
+    color: #444;
+    margin-top: 5px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ---- META INFO ---- */
+  .meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 12.5px;
+    color: #333;
+  }
+  .meta-table td {
+    padding: 2px 0;
+  }
+  .meta-table td:first-child {
+    font-weight: 600;
+    width: 180px;
+    color: #1a2a4a;
+  }
+
+  /* ---- SECTION DIVIDER ---- */
+  .section-divider {
+    border: none;
+    border-top: 1px solid #b8b0a0;
+    margin: 18px 0;
+  }
+
+  /* ---- MAIN GRID ---- */
+  .balance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 30px;
+    margin-top: 4px;
+  }
+
+  /* ---- COLUMN HEADER ---- */
+  .col-header {
+    background: #1a2a4a;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 7px 10px;
+    margin-bottom: 10px;
+  }
+
+  /* ---- SECTION LABEL ---- */
+  .section-label {
+    font-weight: 700;
+    font-size: 13px;
+    color: #1a2a4a;
+    margin-top: 10px;
+    margin-bottom: 3px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ---- SUB-SECTION ---- */
+  .sub-section {
+    font-style: italic;
+    font-size: 12.5px;
+    color: #333;
+    margin-top: 7px;
+    margin-bottom: 2px;
+    padding-left: 4px;
+    border-left: 2px solid #b8b0a0;
+  }
+
+  /* ---- LINE ITEM ---- */
+  .line-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 2px 0 2px 14px;
+    font-size: 12.5px;
+    color: #222;
+    border-bottom: 1px dotted #d5d0c8;
+  }
+
+  .line-item .item-label {
+    flex: 1;
+    padding-right: 8px;
+  }
+
+  .line-item .item-value {
+    text-align: right;
+    min-width: 180px;
+    font-variant-numeric: tabular-nums;
+    color: #1a2a4a;
+  }
+
+  /* ---- SUB TOTAL ---- */
+  .subtotal-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0 4px 14px;
+    font-style: italic;
+    font-size: 12px;
+    color: #555;
+    border-top: 1px solid #ccc;
+    margin-top: 2px;
+  }
+
+  .subtotal-row .item-value {
+    text-align: right;
+    min-width: 180px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- TOTAL ROW ---- */
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 7px 0 5px 0;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: #1a2a4a;
+    border-top: 2.5px solid #1a2a4a;
+    margin-top: 10px;
+  }
+
+  .total-row .item-value {
+    text-align: right;
+    min-width: 180px;
+    font-variant-numeric: tabular-nums;
+    border-bottom: 3px double #1a2a4a;
+    padding-bottom: 2px;
+  }
+
+  .nil { color: #888; font-style: italic; }
+
+  /* ---- CERTIFICATION ---- */
+  .certification {
+    margin-top: 28px;
+    border-top: 1px solid #b8b0a0;
+    padding-top: 16px;
+    font-size: 12px;
+    color: #444;
+    line-height: 1.7;
+  }
+
+  .certification p {
+    margin-bottom: 8px;
+  }
+
+  .sig-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 24px;
+  }
+
+  .sig-line {
+    border-top: 1px solid #444;
+    padding-top: 6px;
+    font-size: 11.5px;
+    color: #555;
+  }
+
+  .footer-note {
+    margin-top: 28px;
+    font-size: 11px;
+    color: #888;
+    text-align: center;
+    font-style: italic;
+    border-top: 1px solid #d5d0c8;
+    padding-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- DOCUMENT TITLE -->
+  <div class="doc-title">
+    <h1>Statement of Financial Position</h1>
+    <div class="subtitle">Day 1 Startup Balance Sheet &mdash; Presented in Cambodian Riel (KHR) and United States Dollars (USD)</div>
+  </div>
+
+  <!-- META INFORMATION -->
+  <table class="meta-table">
+    <tr>
+      <td>Entity Name:</td>
+      <td>[Company / Enterprise Name]</td>
+    </tr>
+    <tr>
+      <td>Registration Number:</td>
+      <td>[To Be Assigned Upon Registration]</td>
+    </tr>
+    <tr>
+      <td>Reporting Date:</td>
+      <td>Day 1 of Operations &mdash; Commencement of Business</td>
+    </tr>
+    <tr>
+      <td>Functional Currency:</td>
+      <td>Cambodian Riel (KHR) / United States Dollar (USD)</td>
+    </tr>
+    <tr>
+      <td>Exchange Rate Applied:</td>
+      <td>USD 1.00 = KHR 4,000 (Rate as at Date of Statement)</td>
+    </tr>
+    <tr>
+      <td>Basis of Preparation:</td>
+      <td>Accrual Basis &mdash; Historical Cost Convention</td>
+    </tr>
+  </table>
+
+  <hr class="section-divider">
+
+  <!-- BALANCE SHEET GRID -->
+  <div class="balance-grid">
+
+    <!-- LEFT COLUMN: ASSETS -->
+    <div class="col-left">
+      <div class="col-header">Assets &mdash; Resources Owned</div>
+
+      <!-- Current Assets -->
+      <div class="section-label">Current Assets</div>
+      <div class="sub-section">Short-term Resources and Liquid Holdings</div>
+
+      <div class="line-item">
+        <span class="item-label">Cash Buffer (Operating Reserve)</span>
+        <span class="item-value">KHR 1,976,000 (USD 494)</span>
+      </div>
+      <div class="line-item">
+        <span class="item-label">Rice Inventory — Paddy, Milling and Packaging</span>
+        <span class="item-value">KHR 8,024,000 (USD 2,006)</span>
+      </div>
+      <div class="subtotal-row">
+        <span>Subtotal — Current Assets</span>
+        <span class="item-value">KHR 10,000,000 (USD 2,500)</span>
+      </div>
+
+      <!-- Fixed Assets -->
+      <div class="section-label">Fixed Assets</div>
+      <div class="sub-section">Long-term Tangible and Intangible Holdings</div>
+
+      <div class="line-item">
+        <span class="item-label">Equipment (Scales and Processing Tools)</span>
+        <span class="item-value">KHR 3,000,000 (USD 750)</span>
+      </div>
+      <div class="line-item">
+        <span class="item-label">Warehouse Security Deposit (Phnom Penh)</span>
+        <span class="item-value">KHR 1,500,000 (USD 375)</span>
+      </div>
+      <div class="line-item">
+        <span class="item-label">Market Stall Security Deposit</span>
+        <span class="item-value">KHR 1,000,000 (USD 250)</span>
+      </div>
+      <div class="line-item">
+        <span class="item-label">Printed Marketing and Branding Materials</span>
+        <span class="item-value">KHR 500,000 (USD 125)</span>
+      </div>
+      <div class="subtotal-row">
+        <span>Subtotal — Fixed Assets</span>
+        <span class="item-value">KHR 6,000,000 (USD 1,500)</span>
+      </div>
+
+      <div class="total-row">
+        <span>Total Assets</span>
+        <span class="item-value">KHR 16,000,000 (USD 4,000)</span>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: LIABILITIES & EQUITY -->
+    <div class="col-right">
+      <div class="col-header">Liabilities and Equity &mdash; Sources of Funding</div>
+
+      <!-- Liabilities -->
+      <div class="section-label">Liabilities</div>
+      <div class="sub-section">Obligations and Amounts Owed to Third Parties</div>
+
+      <div class="line-item">
+        <span class="item-label">Bank Loans and External Debt</span>
+        <span class="item-value nil">Nil</span>
+      </div>
+      <div class="line-item">
+        <span class="item-label">Accounts Payable (Outstanding Creditors)</span>
+        <span class="item-value nil">Nil</span>
+      </div>
+      <div class="subtotal-row">
+        <span>Subtotal — Total Liabilities</span>
+        <span class="item-value">KHR 0 (USD 0)</span>
+      </div>
+
+      <!-- Equity -->
+      <div class="section-label">Equity</div>
+      <div class="sub-section">Owners' Interest and Accumulated Surplus</div>
+
+      <div class="line-item">
+        <span class="item-label">Team Capital Investment (Paid-In Capital)</span>
+        <span class="item-value">KHR 16,000,000 (USD 4,000)</span>
+      </div>
+      <div class="line-item">
+        <span class="item-label">Retained Earnings (Accumulated Profit / Loss)</span>
+        <span class="item-value nil">Nil</span>
+      </div>
+      <div class="subtotal-row">
+        <span>Subtotal — Total Equity</span>
+        <span class="item-value">KHR 16,000,000 (USD 4,000)</span>
+      </div>
+
+      <div class="total-row">
+        <span>Total Liabilities and Equity</span>
+        <span class="item-value">KHR 16,000,000 (USD 4,000)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CERTIFICATION -->
+  <div class="certification">
+    <p>
+      We, the undersigned, hereby confirm that the foregoing Statement of Financial Position accurately reflects the financial standing of the entity as at the date stated above. This statement has been prepared in accordance with generally accepted accounting principles and is presented on a historical cost basis. All figures are stated in Cambodian Riel (KHR) with United States Dollar (USD) equivalents provided for reference purposes only.
+    </p>
+
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">
+          Authorised Signatory &mdash; Name:<br>
+          Title / Position:<br>
+          Date:
+        </div>
+      </div>
+      <div>
+        <div class="sig-line">
+          Authorised Signatory &mdash; Name:<br>
+          Title / Position:<br>
+          Date:
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    This document constitutes a formal Statement of Financial Position prepared at the commencement of business operations. It is intended for internal management, regulatory, and investor reference purposes.
+  </div>
+
+</div>
+</body>
+</html>
