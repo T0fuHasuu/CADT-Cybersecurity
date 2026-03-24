@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Transfer Funds — FintechDemo{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Transfer Funds</h1>
+
+<div class="grid-2">
+  <!-- Transfer form -->
+  <div class="card">
+    <div class="card-title">New Transfer</div>
+
+    <form method="POST" action="/transfer">
+
+      <div class="form-group">
+        <label>From Account</label>
+        <!--
+          VULNERABILITY 3 DEMO:
+          This hidden field can be changed by an attacker via DevTools or curl.
+          The server never checks if from_account belongs to the current user.
+          Change this to ACC004 to steal from admin's account!
+        -->
+        <select name="from_account" class="form-control" required>
+          {% for acct in my_accounts %}
+          <option value="{{ acct.id }}"
+            {% if request.args.get('from') == acct.id %}selected{% endif %}>
+            {{ acct.id }} — {{ acct.account_type | title }} (${{ "%.2f"|format(acct.balance) }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>To Account</label>
+        <select name="to_account" class="form-control" required>
+          <option value="">— Select destination —</option>
+          {% for acct in all_accounts %}
+          <option value="{{ acct.id }}">{{ acct.id }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Amount (USD)</label>
+        <input type="number" name="amount" class="form-control"
+               min="0.01" step="0.01" placeholder="0.00" required>
+      </div>
+
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <input type="text" name="description" class="form-control"
+               placeholder="What is this transfer for?" maxlength="120">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%">
+        Send Transfer →
+      </button>
+    </form>
+  </div>
+
+  <!-- VULN 3 demo hint panel -->
+  <div>
+    <div class="card" style="border-left:4px solid #7c3aed;background:#faf5ff">
+      <div class="card-title" style="color:#6d28d9">💀 Demo — Missing Authorization</div>
+      <p style="font-size:.85rem;color:#5b21b6;margin-bottom:.8rem">
+        The "From Account" dropdown only shows <em>your</em> accounts in the UI,
+        but the server accepts <strong>any</strong> account ID in the POST body.
+      </p>
+      <p style="font-size:.82rem;color:#5b21b6;margin-bottom:.5rem">
+        <strong>Step 1:</strong> Open DevTools → Inspector → change the dropdown
+        option to <code style="background:#ede9fe;padding:.1rem .3rem;border-radius:3px">ACC004</code>
+      </p>
+      <p style="font-size:.82rem;color:#5b21b6;margin-bottom:.5rem">
+        <strong>Step 2:</strong> Set amount to <code style="background:#ede9fe;padding:.1rem .3rem;border-radius:3px">10000</code>,
+        pick your account as destination, and click Send.
+      </p>
+      <p style="font-size:.82rem;color:#5b21b6;margin-bottom:.8rem">
+        <strong>Step 3:</strong> Watch $10,000 move from admin's account to yours!
+      </p>
+      <p style="font-size:.78rem;color:#7c3aed">
+        Or use curl to bypass the form entirely:<br>
+        <code style="display:block;background:#ede9fe;padding:.4rem .5rem;border-radius:3px;margin-top:.3rem;font-size:.75rem;word-break:break-all">
+          curl -X POST http://localhost:5000/transfer \<br>
+          &nbsp; -b "session=YOUR_SESSION" \<br>
+          &nbsp; -d "from_account=ACC004&to_account=ACC001&amount=10000"
+        </code>
+      </p>
+    </div>
+
+    <div class="card" style="background:#f0fdf4;border-left:4px solid #057a55">
+      <div class="card-title" style="color:#065f46">✅ Secure Fix</div>
+      <p style="font-size:.83rem;color:#065f46">
+        After parsing <code>from_account</code>, the server must verify:
+      </p>
+      <pre style="background:#dcfce7;border-radius:4px;padding:.6rem;font-size:.75rem;margin-top:.5rem;color:#14532d;overflow:auto">if from_account["user_id"] != session["user_id"]:
+    abort(403)  # Forbidden</pre>
+      <p style="font-size:.8rem;color:#065f46;margin-top:.5rem">
+        Server-side ownership checks can never be bypassed by client manipulation.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

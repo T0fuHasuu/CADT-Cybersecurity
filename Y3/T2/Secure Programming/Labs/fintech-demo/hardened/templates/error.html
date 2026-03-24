@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }} — FintechDemo{% endblock %}
+{% block content %}
+<div style="text-align:center;padding:4rem 2rem">
+  <div style="font-size:4rem;margin-bottom:1rem">
+    {% if code == 403 %}🚫{% elif code == 404 %}🔍{% else %}⚠️{% endif %}
+  </div>
+  <h1 style="font-size:2rem;font-weight:700;color:#1f2937;margin-bottom:.5rem">{{ code }}</h1>
+  <p style="color:#6b7280;font-size:1rem;margin-bottom:1.5rem">{{ message }}</p>
+  <a href="/dashboard" class="btn btn-primary">← Back to Dashboard</a>
+</div>
+{% endblock %}

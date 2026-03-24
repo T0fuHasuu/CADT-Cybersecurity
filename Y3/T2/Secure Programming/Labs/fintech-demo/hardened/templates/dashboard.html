@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — FintechDemo (Hardened){% endblock %}
+
+{% block content %}
+<h1 class="page-title">Welcome back, {{ session.full_name }} 👋</h1>
+
+<div class="alert alert-success" style="font-size:.85rem">
+  🔒 <strong>Hardened version:</strong>
+  You can only see your own accounts. Visiting <code>/account/ACC004</code>
+  returns <strong>403 Forbidden</strong> — ownership is enforced server-side.
+</div>
+
+<!-- Account Cards -->
+<div class="grid-{% if accounts|length == 1 %}2{% else %}3{% endif %}" style="margin-bottom:1.5rem">
+  {% for acct in accounts %}
+  <div class="stat-card">
+    <div class="stat-label">{{ acct.account_type | title }} Account</div>
+    <div class="stat-value">${{ "%.2f"|format(acct.balance) }}</div>
+    <div class="stat-sub">
+      <a href="/account/{{ acct.id }}" class="account-link">{{ acct.id }}</a>
+      &nbsp;·&nbsp; {{ acct.currency }}
+      {% if acct.is_frozen %}
+        <span class="badge badge-red" style="margin-left:.3rem">Frozen</span>
+      {% else %}
+        <span class="badge badge-green" style="margin-left:.3rem">Active</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  <div class="stat-card" style="display:flex;align-items:center;justify-content:center;">
+    <a href="/transfer" class="btn btn-primary" style="width:100%;text-align:center;">
+      ➜ &nbsp;New Transfer
+    </a>
+  </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="card">
+  <div class="card-title">Recent Transactions</div>
+  {% if recent_tx %}
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Type</th>
+        <th style="text-align:right">Amount</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tx in recent_tx %}
+      <tr>
+        <td style="color:#6b7280;font-size:.82rem">{{ tx.created_at[:16] }}</td>
+        <td>{{ tx.description or "—" }}</td>
+        <td>{% if tx.from_account %}
+              <a href="/account/{{ tx.from_account }}" class="account-link">{{ tx.from_account }}</a>
+            {% else %}—{% endif %}
+        </td>
+        <td>{% if tx.to_account %}
+              <a href="/account/{{ tx.to_account }}" class="account-link">{{ tx.to_account }}</a>
+            {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if tx.tx_type == 'transfer' %}
+            <span class="badge badge-blue">Transfer</span>
+          {% elif tx.tx_type == 'deposit' %}
+            <span class="badge badge-green">Deposit</span>
+          {% else %}
+            <span class="badge badge-red">Withdrawal</span>
+          {% endif %}
+        </td>
+        <td style="text-align:right"
+            class="{% if tx.tx_type == 'deposit' %}amount-positive{% else %}amount-negative{% endif %}">
+          {% if tx.tx_type == 'deposit' %}+{% elif tx.tx_type == 'withdrawal' %}-{% endif %}
+          ${{ "%.2f"|format(tx.amount) }}
+        </td>
+        <td><span class="badge badge-green">{{ tx.status | title }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p style="color:#9ca3af;text-align:center;padding:2rem">No transactions yet.</p>
+  {% endif %}
+  <div style="margin-top:1rem;text-align:right">
+    <a href="/history" class="btn btn-primary btn-sm">View All Transactions →</a>
+  </div>
+</div>
+{% endblock %}

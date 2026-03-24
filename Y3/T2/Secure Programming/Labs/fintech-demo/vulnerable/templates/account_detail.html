@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Account {{ account.id }} — FintechDemo{% endblock %}
+
+{% block content %}
+
+{% set is_own = (account.user_id == session.user_id) %}
+
+{% if not is_own %}
+<div class="alert alert-danger" style="border-left-width:6px;font-size:.9rem">
+  ⚠️ <strong>IDOR Demo Active:</strong>
+  You (<strong>{{ session.username }}</strong>) are viewing an account owned by
+  <strong>{{ account.owner }}</strong>.
+  No ownership check was performed — this is Vulnerability #2.
+</div>
+{% endif %}
+
+<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+  <div>
+    <h1 class="page-title" style="margin-bottom:.2rem">
+      Account {{ account.id }}
+      {% if account.is_frozen %}
+        <span class="badge badge-red" style="vertical-align:middle">Frozen</span>
+      {% else %}
+        <span class="badge badge-green" style="vertical-align:middle">Active</span>
+      {% endif %}
+    </h1>
+    <div style="font-size:.85rem;color:#6b7280">
+      Owner: <strong>{{ account.owner }}</strong> &nbsp;·&nbsp;
+      Type: {{ account.account_type | title }} &nbsp;·&nbsp;
+      Currency: {{ account.currency }}
+    </div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:1.5rem">
+  <div class="stat-card">
+    <div class="stat-label">Current Balance</div>
+    <div class="stat-value" style="color:{% if account.balance > 0 %}#057a55{% else %}#c81e1e{% endif %}">
+      ${{ "%.2f"|format(account.balance) }}
+    </div>
+    <div class="stat-sub">{{ account.currency }}</div>
+  </div>
+  <div class="stat-card" style="display:flex;flex-direction:column;justify-content:center;gap:.7rem">
+    <a href="/transfer?from={{ account.id }}" class="btn btn-primary">➜ Transfer from this account</a>
+    <a href="/dashboard" class="btn" style="background:#e5e7eb;color:#374151">← Back to Dashboard</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Transaction History — {{ account.id }}</div>
+  {% if transactions %}
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Type</th>
+        <th style="text-align:right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tx in transactions %}
+      <tr>
+        <td style="color:#6b7280;font-size:.82rem">{{ tx.created_at[:16] }}</td>
+        <td>{{ tx.description or "—" }}</td>
+        <td>{% if tx.from_account %}
+              <a href="/account/{{ tx.from_account }}" class="account-link">{{ tx.from_account }}</a>
+            {% else %}—{% endif %}
+        </td>
+        <td>{% if tx.to_account %}
+              <a href="/account/{{ tx.to_account }}" class="account-link">{{ tx.to_account }}</a>
+            {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if tx.tx_type == 'transfer' %}
+            <span class="badge badge-blue">Transfer</span>
+          {% elif tx.tx_type == 'deposit' %}
+            <span class="badge badge-green">Deposit</span>
+          {% else %}
+            <span class="badge badge-red">Withdrawal</span>
+          {% endif %}
+        </td>
+        <td style="text-align:right"
+            class="{% if tx.to_account == account.id %}amount-positive{% else %}amount-negative{% endif %}">
+          {% if tx.to_account == account.id %}+{% else %}-{% endif %}
+          ${{ "%.2f"|format(tx.amount) }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p style="color:#9ca3af;text-align:center;padding:2rem">No transactions for this account.</p>
+  {% endif %}
+</div>
+{% endblock %}

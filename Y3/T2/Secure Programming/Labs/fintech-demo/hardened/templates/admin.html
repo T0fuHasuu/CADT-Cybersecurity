@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — FintechDemo{% endblock %}
+
+{% block content %}
+<h1 class="page-title">⚙ Admin Panel</h1>
+
+<div class="alert alert-warning">
+  <strong>Security Note:</strong> This panel is only accessible to users with <code>role=admin</code>.
+  However, SQL injection (VULN 1) can grant admin access without knowing the admin password.
+</div>
+
+<!-- Users table -->
+<div class="card">
+  <div class="card-title">All Users</div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Username</th><th>Full Name</th>
+        <th>Email</th><th>Role</th><th>Active</th><th>Created</th>
+        <th>Password Hash</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td><strong>{{ u.username }}</strong></td>
+        <td>{{ u.full_name }}</td>
+        <td>{{ u.email }}</td>
+        <td>
+          {% if u.role == 'admin' %}
+            <span class="badge badge-purple">admin</span>
+          {% else %}
+            <span class="badge badge-gray">user</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.is_active %}
+            <span class="badge badge-green">Yes</span>
+          {% else %}
+            <span class="badge badge-red">No</span>
+          {% endif %}
+        </td>
+        <td style="font-size:.8rem;color:#6b7280">{{ u.created_at[:10] }}</td>
+        <td style="font-family:monospace;font-size:.75rem;color:#9ca3af">{{ u.password[:16] }}…</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Accounts table -->
+<div class="card">
+  <div class="card-title">All Accounts</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Account ID</th><th>Owner</th><th>Type</th>
+        <th style="text-align:right">Balance</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in accounts %}
+      <tr>
+        <td><a href="/account/{{ a.id }}" class="account-link">{{ a.id }}</a></td>
+        <td>{{ a.username }}</td>
+        <td>{{ a.account_type | title }}</td>
+        <td style="text-align:right;font-weight:600">${{ "%.2f"|format(a.balance) }}</td>
+        <td>
+          {% if a.is_frozen %}
+            <span class="badge badge-red">Frozen</span>
+          {% else %}
+            <span class="badge badge-green">Active</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Recent transactions -->
+<div class="card">
+  <div class="card-title">Recent Transactions (last 50)</div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Date</th><th>From</th><th>To</th>
+        <th>Type</th><th style="text-align:right">Amount</th><th>Initiated By</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tx in transactions %}
+      <tr>
+        <td style="color:#9ca3af">{{ tx.id }}</td>
+        <td style="font-size:.8rem;color:#6b7280">{{ tx.created_at[:16] }}</td>
+        <td>{{ tx.from_account or "—" }}</td>
+        <td>{{ tx.to_account or "—" }}</td>
+        <td>
+          <span class="badge {% if tx.tx_type=='transfer' %}badge-blue
+                             {% elif tx.tx_type=='deposit' %}badge-green
+                             {% else %}badge-red{% endif %}">
+            {{ tx.tx_type | title }}
+          </span>
+        </td>
+        <td style="text-align:right;font-weight:600">${{ "%.2f"|format(tx.amount) }}</td>
+        <td style="font-size:.8rem">user#{{ tx.initiated_by or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

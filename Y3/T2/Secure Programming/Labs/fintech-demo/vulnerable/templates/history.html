@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Transaction History — FintechDemo{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Transaction History</h1>
+
+<div class="card">
+  <div class="card-title">All Transactions</div>
+  {% if transactions %}
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Type</th>
+        <th style="text-align:right">Amount</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tx in transactions %}
+      <tr>
+        <td style="color:#9ca3af;font-size:.8rem">{{ tx.id }}</td>
+        <td style="color:#6b7280;font-size:.82rem;white-space:nowrap">{{ tx.created_at[:16] }}</td>
+        <td>{{ tx.description or "—" }}</td>
+        <td>{% if tx.from_account %}
+              <a href="/account/{{ tx.from_account }}" class="account-link">{{ tx.from_account }}</a>
+            {% else %}—{% endif %}
+        </td>
+        <td>{% if tx.to_account %}
+              <a href="/account/{{ tx.to_account }}" class="account-link">{{ tx.to_account }}</a>
+            {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if tx.tx_type == 'transfer' %}
+            <span class="badge badge-blue">Transfer</span>
+          {% elif tx.tx_type == 'deposit' %}
+            <span class="badge badge-green">Deposit</span>
+          {% else %}
+            <span class="badge badge-red">Withdrawal</span>
+          {% endif %}
+        </td>
+        <td style="text-align:right;font-weight:600">
+          ${{ "%.2f"|format(tx.amount) }}
+        </td>
+        <td><span class="badge badge-green">{{ tx.status | title }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p style="color:#9ca3af;text-align:center;padding:2rem">No transactions found.</p>
+  {% endif %}
+</div>
+{% endblock %}
