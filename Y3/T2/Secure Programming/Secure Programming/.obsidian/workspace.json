@@ -8,17 +8,17 @@
         "type": "tabs",
         "children": [
           {
-            "id": "caf8de327d3ffee0",
+            "id": "b4e1ce8e482f5a49",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Internship Project.md",
+                "file": "Experience and Expertise.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Internship Project"
+              "title": "Experience and Expertise"
             }
           }
         ]
@@ -181,10 +181,13 @@
       "bases:Create new base": false
     }
   },
-  "active": "caf8de327d3ffee0",
+  "active": "b4e1ce8e482f5a49",
   "lastOpenFiles": [
-    "Schedule.md",
+    "Experience and Expertise.md",
+    "Home Lab (Lumma Stealer).md",
+    "Lumma Stealer Environment.md",
     "Internship Project.md",
+    "Schedule.md",
     "CADT/Network Security (  Lab topology  ).md",
     "CADT/IMG/topology.png",
     "CADT/IMG",
