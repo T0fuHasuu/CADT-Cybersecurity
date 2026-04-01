@@ -1,0 +1,89 @@
+Q13 Implement access lists on the boarder router
+Q16 This command prevents someone fom viewing the running configuration passwords
+Q18:
+- Keep a secure copy of router operating system images
+- Reduce the number of ports that can be used to access the router
+
+===========
+	Overall 
+===========
+
+Q1 : A company has several sales offices distributed within a city. Each sales office has a SOHO network. What are two security features that are commonly found in such a network configuration? (Choose two.)
+- WPA2
+- Port security on user facing ports
+
+Q2 : Which security feature or device would more likely be used within a CAN than a SOHO or data center?
+- ESA/WSA
+
+Q3 : Which condition describes the potential threat created by Instant On in a data center?
+- when a VM that may have outdated security policies is brought online after a long period of inactivity
+
+Q4 : What are two data protection functions provided by MDM? (Choose two.)
+- remote wiping
+- PIN locking
+
+Q5 : What are two evasion methods used by hackers? (Choose two.)
+- encryption
+- resource exhaustion
+
+Q6 : What is the purpose of a reconnaissance attack on a computer network?
+- to gather information about the target network and system
+
+Q7 : Match the security concept to the description.
+- a weakness in a system → vulnerability
+- a potential danger to an asset → threat
+- the likelihood of undesirable consequences → risk
+- a mechanism used to compromise an asset → exploit
+
+Q8 : A user is curious about how someone might know a computer has been infected with malware. What are two common malware behaviors? (Choose two.)
+- The computer freezes and requires reboots.
+- The computer gets increasingly slower to respond.
+
+Q9 : Which attack involves threat actors positioning themselves between a source and destination with the intent of transparently monitoring, capturing, and controlling the communication?
+- Man-in-the-middle attack
+
+Q10 : What is the motivation of a white hat attacker?
+- discovering weaknesses of networks and systems to improve the security level of these systems
+
+Q11 : Which security implementation will provide management plane protection for a network device?
+- role-based access control
+
+Q12 : What functional area of the Cisco Network Foundation Protection framework is responsible for device-generated packets required for network operation, such as ARP message exchanges and routing advertisements?
+- control plane
+
+Q13 : Which security measure is best used to limit the success of a reconnaissance attack from within a campus area network?
+- Implement access lists on the border router.
+
+Q14 : What is the purpose of mobile device management (MDM) software?
+- It is used to implement security policies, setting, and software configurations on mobile devices.
+
+Q15 : Passwords can be used to restrict access to all or parts of the Cisco IOS. Select the modes and interfaces that can be protected with passwords. (Choose three.)
+- Console interface
+- Privileged EXEC mode
+- VTY interface
+
+Q16 : A network administrator enters the service password-encryption command into the configuration mode of a router. What does this command accomplish?
+- This command prevents someone from viewing the running configuration passwords.
+
+Q17 : On which two interfaces or ports can security be improved by configuring executive timeouts? (Choose two.)
+- console ports
+- vty ports
+
+Q18 : Which two practices are associated with securing the features and performance of router operating systems? (Choose two.)
+- Keep a secure copy of router operating system images.
+- Reduce the number of ports that can be used to access the router.
+
+Q19 : An administrator defined a local user account with a secret password on router R1 for use with SSH. Which three additional steps are required to configure R1 to accept only encrypted SSH connections? (Choose three.)
+- Generate crypto keys.
+- Configure a host name other than "Router".
+- Configure the IP domain name on the router.
+
+Q20 : Which command will block login attempts on RouterA for a period of 30 seconds if there are 2 failed login attempts within 10 seconds?
+- RouterA(config)# login block-for 30 attempts 2 within 10
+
+Q21 : A security service company is conducting an audit in several risk areas within a major corporation. What statement describes the risk of access to cloud storage devices?
+- sensitive data lost through access to the cloud that has been compromised due to weak security settings
+
+===========
+	  END
+===========
