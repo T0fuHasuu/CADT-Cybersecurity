@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Experience and Expertise.md",
+                "file": "Home Lab (Lumma Stealer).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Experience and Expertise"
+              "title": "Home Lab (Lumma Stealer)"
             }
           },
           {
@@ -27,30 +27,16 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain Interview.md",
-                "mode": "preview",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Blockchain Interview"
-            }
-          },
-          {
-            "id": "f2bc34f95f337064",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "SOC Interview Questions.md",
+                "file": "Implementation Procedures.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "SOC Interview Questions"
+              "title": "Implementation Procedures"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -82,7 +68,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#include",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -103,7 +89,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -210,15 +197,16 @@
       "bases:Create new base": false
     }
   },
-  "active": "f2bc34f95f337064",
+  "active": "9ab46ddd4326e655",
   "lastOpenFiles": [
+    "Blockchain Interview.md",
+    "Home Lab (Lumma Stealer).md",
+    "Implementation Procedures.md",
     "Pasted image 20260329204642.png",
     "Pasted image 20260329204624.png",
     "Pasted image 20260329204219.png",
-    "Blockchain Interview.md",
-    "SOC Interview Questions.md",
     "Experience and Expertise.md",
-    "Home Lab (Lumma Stealer).md",
+    "SOC Interview Questions.md",
     "Lumma Stealer Environment.md",
     "Internship Project.md",
     "Schedule.md",

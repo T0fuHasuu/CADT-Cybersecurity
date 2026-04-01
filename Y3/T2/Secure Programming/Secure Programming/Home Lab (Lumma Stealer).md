@@ -200,8 +200,8 @@ sudo chmod 755 -R /var/www/html/captcha
 
 <figure><img src="https://2537271824-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FIswWWP3l0rGuQmG2WUcr%2Fuploads%2F7UvpRTZ3Q34bcRjj8vMV%2FScreenshot(11).png?alt=media&#x26;token=427e929e-26ff-41e4-8e01-6d88a36c3f7f" alt=""><figcaption></figcaption></figure>
 
-In the code, clicking the button copies the command to the user's clipboard. Let's verify this behavior.
-
+In the code, clicking the button copies the command to the user's clipboard. Let's verify this behaviour.
+	  
 <figure><img src="https://2537271824-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FIswWWP3l0rGuQmG2WUcr%2Fuploads%2FWf0GvVxzuhRmyhA6eBfa%2FScreenshot(1).png?alt=media&#x26;token=7d6b70ef-3e6e-414a-8fb4-13bd2c0f4678" alt=""><figcaption></figcaption></figure>
 
 When the `Win + R` keys were pressed, the command was automatically copied to the clipboard.
