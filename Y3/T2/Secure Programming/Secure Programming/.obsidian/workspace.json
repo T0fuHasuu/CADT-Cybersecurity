@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "PCI-DSS.md",
+                "file": "Implementation Procedures.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "PCI-DSS"
+              "title": "Implementation Procedures"
             }
           },
           {
@@ -49,8 +49,7 @@
               "title": "TCRMG"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -108,8 +107,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "8b92ab5009350a6a",
@@ -211,11 +209,11 @@
       "bases:Create new base": false
     }
   },
-  "active": "7c76b647fc35d368",
+  "active": "bbc121901dd7796e",
   "lastOpenFiles": [
-    "TCRMG.md",
-    "Intern Project.md",
     "PCI-DSS.md",
+    "Intern Project.md",
+    "TCRMG.md",
     "Home Lab (Lumma Stealer).md",
     "Implementation Procedures.md",
     "Blockchain Interview.md",
