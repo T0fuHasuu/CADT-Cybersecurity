@@ -1,0 +1,42 @@
+﻿Created By Exterro® FTK® Imager 8.3.0.27 
+
+Case Information: 
+Case Number: 001
+Evidence Number: EV-01
+Unique Description: Assignment_week01
+Examiner: THY DAYUTH
+Notes: 
+Encrypted Password : N/A
+
+Computer Name: T0FU
+Windows Edition: Windows 11 Home
+Windows Version: Microsoft Windows 6.3.26300.9550
+OS build: 6.3.26300
+Processor: Intel(R) Core(TM) i5-8400 CPU @ 2.80GHz
+Installed RAM: 16 GB
+
+--------------------------------------------------------------
+
+Information for D:\CADT\Y4\Digital_Forensics\Assignments\Week01\Result.ad1:
+  [Computed Hashes]
+    MD5 Hash:    db6110936ff52c6819719d163de74d4e
+    SHA1 Hash:   21a2daa0186e575d22e7d455b138e80501d32526
+
+Verification Definitions:
+  Computed hash: The hash calculated of the source media during the creation or verify process
+  Stored verification hash: The hash calculated during image acquisition and stored inside the image
+  Report hash: The hash calculated during image acquisition and stored in the image summary report
+
+Image information:
+  Acquisition started:   Fri Oct  2 15:45:24 2026 (2026-10-02T08:45:24Z)
+  Acquisition finished:  Fri Oct  2 15:45:24 2026 (2026-10-02T08:45:24Z)
+  Segment list:
+    D:\CADT\Y4\Digital_Forensics\Assignments\Week01\Result.ad1
+
+Image Verification Results:
+  Verification started:  Fri Oct  2 15:45:24 2026 (2026-10-02T08:45:24Z)
+  Verification finished: Fri Oct  2 15:45:24 2026 (2026-10-02T08:45:24Z)
+  MD5 - Computed hash:             db6110936ff52c6819719d163de74d4e : verified
+  MD5 - Report hash:               db6110936ff52c6819719d163de74d4e : verified
+  SHA1 - Computed hash:            21a2daa0186e575d22e7d455b138e80501d32526 : verified
+  SHA1 - Report hash:              21a2daa0186e575d22e7d455b138e80501d32526 : verified
